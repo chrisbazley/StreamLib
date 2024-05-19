@@ -1,5 +1,5 @@
 # Project:   StreamLib
-include MakeCommon
+include MakeROCom
 
 # Tools
 CC = cc

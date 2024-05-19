@@ -44,7 +44,9 @@ int main(int argc, char *argv[])
   NOT_USED(argv);
 
   DEBUG_SET_OUTPUT(DebugOutput_StdOut, "");
+#ifdef ACORN_FLEX
   flex_init("StreamLib", NULL, 0);
+#endif
 
   for (size_t count = 0; count < ARRAY_SIZE(test_groups); count ++)
   {

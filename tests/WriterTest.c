@@ -31,7 +31,9 @@
 #include "WriterRaw.h"
 #include "WriterGKey.h"
 #include "WriterGKC.h"
+#ifdef ACORN_FLEX
 #include "WriterFlex.h"
+#endif
 #include "WriterMem.h"
 #include "WriterHeap.h"
 #include "WriterNull.h"
@@ -57,7 +59,9 @@ typedef enum  {
   WRITERTYPE_RAW,
   WRITERTYPE_GKEY,
   WRITERTYPE_GKC,
+#ifdef ACORN_FLEX
   WRITERTYPE_FLEX,
+#endif
   WRITERTYPE_MEM,
   WRITERTYPE_HEAP,
   WRITERTYPE_NULL,
@@ -84,7 +88,9 @@ static void close_file(WriterType const wtype, int const handle)
     f[handle] = NULL;
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
+#endif
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
   case WRITERTYPE_NULL:
@@ -109,11 +115,13 @@ static void delete_file(WriterType const wtype, int const handle)
     remove(file_names[handle]);
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
     if (anchors[handle]) {
       flex_free(&anchors[handle]);
     }
     break;
+#endif
 
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
@@ -138,7 +146,9 @@ static bool file_is_extensible(WriterType const wtype)
   switch (wtype) {
   case WRITERTYPE_RAW:
   case WRITERTYPE_GKEY:
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
+#endif
   case WRITERTYPE_HEAP:
   case WRITERTYPE_NULL:
   case WRITERTYPE_GKC:
@@ -166,7 +176,9 @@ static bool trailing_zeros(WriterType const wtype)
     trail = true;
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
+#endif
   case WRITERTYPE_RAW:
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
@@ -189,7 +201,9 @@ static bool discards_writes(WriterType const wtype)
 
   switch (wtype) {
   case WRITERTYPE_GKEY:
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
+#endif
   case WRITERTYPE_RAW:
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
@@ -219,7 +233,9 @@ static bool can_seek_back(WriterType const wtype)
     seek_back = false;
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
+#endif
   case WRITERTYPE_RAW:
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
@@ -300,6 +316,7 @@ static void read_file(WriterType const wtype, void *const data,
     }
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
     size *= nmemb;
     assert(size == 0 || anchors[handle]);
@@ -310,6 +327,7 @@ static void read_file(WriterType const wtype, void *const data,
       flex_set_budge(bstate);
     }
     break;
+#endif
 
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
@@ -349,6 +367,7 @@ static int open_file(WriterType const wtype, size_t const min_size)
     assert(f[wnum] != NULL);
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
     assert(!anchors[wnum]);
     assert(min_size <= INT_MAX);
@@ -358,6 +377,7 @@ static int open_file(WriterType const wtype, size_t const min_size)
       printf("No flex buffer input\n");
     }
     break;
+#endif
 
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
@@ -406,9 +426,11 @@ static bool init_writer(WriterType const wtype, Writer *const w,
     success = writer_gkc_init(w, HistoryLog2, &out_size);
     break;
 
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
     writer_flex_init(w, &anchors[handle]);
     break;
+#endif
 
   case WRITERTYPE_MEM:
     success = writer_mem_init(w, buffers[handle], min_size);
@@ -562,7 +584,9 @@ static void test3(WriterType const wtype)
       assert(writer_ftell(&w) == i + 1l);
     }
     Fortify_SetNumAllocationsLimit(ULONG_MAX);
+#ifdef FORTIFY
     assert(discards_writes(wtype) || i < LongDataSize);
+#endif
     destroy_and_check(wtype, &w, LongDataSize);
   }
 
@@ -1086,7 +1110,9 @@ static void test22(WriterType const wtype)
     assert(fseek(f[handle], -2, SEEK_CUR));
     /* Result depends on standard C library */
     assert(ftell(f[handle]) == 1);
+#ifdef ACORN_C
     assert(ferror(f[handle]));
+#endif
     /* End of C library-dependent code */
   }
 
@@ -1165,7 +1191,9 @@ static void test24(WriterType const wtype)
     assert(fseek(f[handle], -1, SEEK_SET));
     /* Result depends on standard C library */
     assert(ftell(f[handle]) == 1);
+#ifdef ACORN_C
     assert(ferror(f[handle]));
+#endif
     /* End of C library-dependent code */
   }
 
@@ -1415,9 +1443,11 @@ static const char *wtype_to_string(WriterType const wtype)
   case WRITERTYPE_GKC:
     s = "GKC";
     break;
+#ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
     s = "Flex";
     break;
+#endif
   case WRITERTYPE_MEM:
     s = "Mem";
     break;

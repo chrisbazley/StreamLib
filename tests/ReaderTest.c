@@ -29,7 +29,9 @@
 /* StreamLib headers */
 #include "ReaderRaw.h"
 #include "ReaderGKey.h"
+#ifdef ACORN_FLEX
 #include "ReaderFlex.h"
+#endif
 #include "ReaderMem.h"
 
 /* Local headers */
@@ -51,12 +53,16 @@ enum
 typedef enum  {
   READERTYPE_RAW,
   READERTYPE_GKEY,
+#ifdef ACORN_FLEX
   READERTYPE_FLEX,
+#endif
   READERTYPE_MEM,
   READERTYPE_COUNT
 } ReaderType;
 
+#ifdef ACORN_FLEX
 static void *anchor;
+#endif
 static void *buffer;
 static size_t buffer_size;
 static FILE *f;
@@ -125,6 +131,7 @@ static void make_file(ReaderType const rtype, const void *const data,
     assert(f != NULL);
     break;
 
+#ifdef ACORN_FLEX
   case READERTYPE_FLEX:
     size *= nmemb;
     assert(size <= INT_MAX);
@@ -136,6 +143,7 @@ static void make_file(ReaderType const rtype, const void *const data,
       flex_set_budge(bstate);
     }
     break;
+#endif
 
   case READERTYPE_MEM:
     size *= nmemb;
@@ -165,7 +173,9 @@ static void rewind_file(ReaderType const rtype)
     rewind(f);
     break;
 
+#ifdef ACORN_FLEX
   case READERTYPE_FLEX:
+#endif
   case READERTYPE_MEM:
     break;
 
@@ -185,9 +195,11 @@ static void delete_file(ReaderType const rtype)
     f = NULL;
     break;
 
+#ifdef ACORN_FLEX
   case READERTYPE_FLEX:
     flex_free(&anchor);
     break;
+#endif
 
   case READERTYPE_MEM:
     free(buffer);
@@ -212,9 +224,11 @@ static void init_reader(ReaderType const rtype, Reader *const r)
     assert(reader_gkey_init(r, HistoryLog2, f));
     break;
 
+#ifdef ACORN_FLEX
   case READERTYPE_FLEX:
     reader_flex_init(r, &anchor);
     break;
+#endif
 
   case READERTYPE_MEM:
     assert(reader_mem_init(r, buffer, buffer_size));
@@ -957,7 +971,9 @@ static void test22(ReaderType const rtype)
     assert(fseek(f, -2, SEEK_CUR));
     /* Result depends on standard C library */
     assert(ftell(f) == 1);
+#ifdef ACORN_C
     assert(ferror(f));
+#endif
     /* End of C library-dependent code */
     assert(!feof(f));
   }
@@ -984,8 +1000,10 @@ static void test23(ReaderType const rtype)
   assert(!reader_ferror(&r));
   assert(reader_fgetc(&r) == EOF);
   /* Result depends on standard C library */
+#ifdef ACORN_C
   assert(!reader_feof(&r));
   assert(reader_ferror(&r));
+#endif
   /* End of C library-dependent code */
   reader_destroy(&r);
 
@@ -998,8 +1016,10 @@ static void test23(ReaderType const rtype)
     assert(!ferror(f));
     assert(fgetc(f) == EOF);
     /* Result depends on standard C library */
+#ifdef ACORN_C
     assert(!feof(f));
     assert(ferror(f));
+#endif
     /* End of C library-dependent code */
   }
 
@@ -1028,7 +1048,9 @@ static void test24(ReaderType const rtype)
     assert(fseek(f, -1, SEEK_SET));
     /* Result depends on standard C library */
     assert(ftell(f) == 1);
+#ifdef ACORN_C
     assert(ferror(f));
+#endif
     /* End of C library-dependent code */
     assert(!feof(f));
   }
@@ -1077,8 +1099,10 @@ static void test26(ReaderType const rtype)
   assert(!reader_ferror(&r));
   assert(reader_fgetc(&r) == EOF);
   /* Result depends on standard C library */
+#ifdef ACORN_C
   assert(!reader_feof(&r));
   assert(reader_ferror(&r));
+#endif
   /* End of C library-dependent code */
   reader_destroy(&r);
 
@@ -1091,8 +1115,10 @@ static void test26(ReaderType const rtype)
     assert(!ferror(f));
     assert(fgetc(f) == EOF);
     /* Result depends on standard C library */
+#ifdef ACORN_C
     assert(!feof(f));
     assert(ferror(f));
+#endif
     /* End of C library-dependent code */
   }
 
@@ -1270,9 +1296,11 @@ static const char *rtype_to_string(ReaderType const rtype)
   case READERTYPE_GKEY:
     s = "GKey";
     break;
+#ifdef ACORN_FLEX
   case READERTYPE_FLEX:
     s = "Flex";
     break;
+#endif
   case READERTYPE_MEM:
     s = "Mem";
     break;

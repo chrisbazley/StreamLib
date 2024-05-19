@@ -1,7 +1,7 @@
 # StreamLib
 (C) 2019 Christopher Bazley
 
-Release 11 (28 Jul 2022)
+Release 12 (19 May 2024)
 
 Introduction
 ------------
@@ -195,6 +195,18 @@ Release 11 (28 Jul 2022)
   writer, and the uncompressed size actually written to the file header, are
   not negative.
 - Removed redundant use of 'extern' and 'const' keywords.
+
+Release 12 (19 May 2024)
+- Added dummy macro definitions to make the tests build without Fortify.
+- Added new makefiles for use on Linux.
+- Improved the README.md file for Linux users.
+- A new file, MakeROCom, is used instead of MakeCommon when building for
+  RISC OS (untested), to ensure that ReaderFlex and WriterFlex aren't
+  compiled when building for Linux.
+- Test code that depends on Acorn's Flex library is now compiled only if
+  macro ACORN_FLEX is defined.
+- Test code that depends on Acorn's C library is now compiled only if
+  macro ACORN_C is defined.
 
 Contact details
 ---------------
