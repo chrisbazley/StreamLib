@@ -1,0 +1,6 @@
+# Project:   StreamLib
+LibName = Stream
+ObjectList = Reader ReaderRaw ReaderGKey ReaderFlex ReaderMem ReaderNull \
+             ReaderChar Reader16 Reader32 ReaderSeek \
+             Writer WriterRaw WriterGKey WriterFlex WriterMem WriterNull \
+             WriterHeap WriterGKC WriterChar Writer16 Writer32 WriterSeek
