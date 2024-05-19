@@ -28,11 +28,11 @@ http://web.archive.org/web/20020615230941/www.geocities.com/SiliconValley/Horizo
   The debugging version of StreamLib must be linked with 'Fortify', for
 example by adding 'C:o.Fortify' to the list of object files specified to the
 linker. Otherwise, you will get build-time errors like this:
-
+```
 ARM Linker: (Error) Undefined symbol(s).
 ARM Linker:     Fortify_malloc, referred to from C:debug.StreamLib(ReaderGKey).
 ARM Linker:     Fortify_free, referred to from C:debug.StreamLib(ReaderGKey).
-
+```
 Rebuilding the library
 ----------------------
   You should ensure that the standard C library, GKeyLib, CBUtilLib and
