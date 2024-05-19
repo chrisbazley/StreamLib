@@ -45,7 +45,7 @@ file so that the macro USE_CBDEBUG is no longer predefined.
   Three make files are supplied:
 
 - 'Makefile' is intended for use with GNU Make and the GNU C Compiler on Linux.
-- 'Makefile' is intended for use with Acorn Make Utility (AMU) and the
+- 'NMakefile' is intended for use with Acorn Make Utility (AMU) and the
    Norcroft C compiler supplied with the Acorn C/C++ Development Suite.
 - 'GMakefile' is intended for use with GNU Make and the GNU C Compiler.
 
