@@ -22,6 +22,7 @@ History:
   CJB: 04-Nov-18: Created this source file.
   CJB: 26-Aug-19: Now requires "PseudoFlex.h" too.
   CJB: 07-Jun-20: Added support for verbose debugging output.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 #ifndef StreamMisc_h
@@ -55,6 +56,37 @@ History:
 #endif /* DEBUG_OUTPUT */
 
 #endif /* USE_CBDEBUG */
+
+#ifdef USE_OPTIONAL
+#include <stdlib.h>
+
+#undef NULL
+#define NULL ((_Optional void *)0)
+
+static inline void optional_free(_Optional void *x)
+{
+    free((void *)x);
+}
+#undef free
+#define free(x) optional_free(x)
+
+static inline _Optional void *optional_malloc(size_t n)
+{
+    return malloc(n);
+}
+#undef malloc
+#define malloc(n) optional_malloc(n)
+
+static inline _Optional void *optional_realloc(_Optional void *p, size_t n)
+{
+    return realloc((void *)p, n);
+}
+#undef realloc
+#define realloc(p, n) optional_realloc(p, n)
+
+#else
+#define _Optional
+#endif
 
 #define NOT_USED(x) ((void)(x))
 

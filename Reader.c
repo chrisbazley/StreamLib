@@ -39,6 +39,7 @@
                   read or member size is one byte).
   CJB: 07-Jun-20: Debugging output is less verbose by default.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -48,8 +49,8 @@
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "Reader.h"
+#include "Internal/StreamMisc.h"
 
 bool reader_feof(const Reader * const reader)
 {

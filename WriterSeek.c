@@ -19,14 +19,15 @@
 
 /* History:
   CJB: 05-Nov-19: Split into a separate compilation unit.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
 #include <stdio.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "Writer.h"
+#include "Internal/StreamMisc.h"
 
 int writer_fseek(Writer * const writer, long int const offset,
   int const whence)

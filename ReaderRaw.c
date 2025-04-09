@@ -21,6 +21,7 @@
   CJB: 07-Aug-18: Copied this source file from SF3KtoObj.
   CJB: 11-Aug-19: Extra DEBUGF and const qualifiers.
   CJB: 27-Oct-19: Only call strerror (for debug output) if ferror.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -32,8 +33,8 @@
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "ReaderRaw.h"
+#include "Internal/StreamMisc.h"
 
 static size_t reader_raw_fread(void *ptr, size_t const size,
                                Reader * const reader)

@@ -20,6 +20,7 @@
 /* History:
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 10-Jul-20: Added unsigned 32-bit read function.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -28,8 +29,8 @@
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "Reader.h"
+#include "Internal/StreamMisc.h"
 
 bool reader_fread_uint32(uint32_t * const ptr, Reader * const reader)
 {

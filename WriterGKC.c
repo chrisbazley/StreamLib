@@ -27,6 +27,7 @@
                   a specified minimum size.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 03-Apr-21: Assert that the specified minimum size is not negative.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -40,8 +41,8 @@
 #include "GKeyComp.h"
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "WriterGKC.h"
+#include "Internal/StreamMisc.h"
 
 enum
 {
@@ -97,7 +98,7 @@ static void flush(WriterGKeyData *const data)
   empty_in(data);
 }
 
-static void write_core(void const *ptr,
+static void write_core(_Optional void const *ptr,
   unsigned long const bytes_to_write, Writer *const writer)
 {
   assert(writer != NULL);
@@ -121,7 +122,7 @@ static void write_core(void const *ptr,
       if (ptr) {
         DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n",
                copy_size, space_avail);
-        memcpy(data->state.in_ptr, ptr, copy_size);
+        memcpy(data->state.in_ptr, &*ptr, copy_size);
         ptr = (char *)ptr + copy_size;
       } else {
         DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n",
@@ -232,7 +233,7 @@ bool writer_gkc_init_with_min(Writer * const writer,
   assert(min_size >= 0);
   assert(out_size != NULL);
 
-  WriterGKeyData *const data = malloc(sizeof(*data));
+  _Optional WriterGKeyData *const data = malloc(sizeof(*data));
   if (data == NULL) {
     DEBUGF("Failed to allocate writer data\n");
     return false;
@@ -242,24 +243,25 @@ bool writer_gkc_init_with_min(Writer * const writer,
     .params = {
       .out_buffer = NULL,
       .out_size = 0,
-      .prog_cb = NULL,
+      .prog_cb = (GKeyProgressFn *)NULL,
       .cb_arg = writer,
     },
-    .comp = gkeycomp_make(history_log_2),
     .min_size = min_size,
     .out_size = out_size,
   };
 
-  if (data->state.comp == NULL) {
+  _Optional GKeyComp *const comp = gkeycomp_make(history_log_2);
+  if (comp == NULL) {
     DEBUGF("Failed to create compressor\n");
     free(data);
     return false;
   }
+  data->state.comp = &*comp;
 
   static WriterFns const fns = {writer_gkc_fwrite, writer_gkc_destroy};
-  writer_internal_init(writer, &fns, data);
+  writer_internal_init(writer, &fns, &*data);
 
-  prepare_for_input(data);
+  prepare_for_input(&*data);
 
   return true;
 }

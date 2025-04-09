@@ -25,6 +25,7 @@
   CJB: 12-Nov-19: Read the file header lazily instead of in the constructor.
   CJB: 07-Jun-20: Debugging output is less verbose by default.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -39,9 +40,9 @@
 #include "GKeyDecomp.h"
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "ReaderGKey.h"
 #include "ReaderRaw.h"
+#include "Internal/StreamMisc.h"
 
 enum
 {
@@ -80,7 +81,7 @@ static void rewind_reinit(ReaderGKeyData *const data)
   data->state.params.in_size = 0;
 }
 
-static unsigned long read_core(void *ptr, unsigned long const bytes_to_read,
+static unsigned long read_core(_Optional void *ptr, unsigned long const bytes_to_read,
   Reader * const reader)
 {
   unsigned long bytes_read = 0;
@@ -104,7 +105,7 @@ static unsigned long read_core(void *ptr, unsigned long const bytes_to_read,
       if (ptr) {
         DEBUG_VERBOSEF("Copying %zu of %zu bytes from output buffer\n",
                copy_size, bytes_avail);
-        memcpy(ptr, data->state.out_ptr, copy_size);
+        memcpy(&*ptr, data->state.out_ptr, copy_size);
         ptr = (char *)ptr + copy_size;
       }
       data->state.out_ptr += copy_size;
@@ -324,7 +325,7 @@ bool reader_gkey_init_from(Reader * const reader,
   assert(!reader_ferror(in));
   assert(!reader_feof(in));
 
-  ReaderGKeyData *const data = malloc(sizeof(*data));
+  _Optional ReaderGKeyData *const data = malloc(sizeof(*data));
   if (data == NULL) {
     DEBUGF("Failed to allocate memory for a new reader\n");
     return false;
@@ -335,21 +336,22 @@ bool reader_gkey_init_from(Reader * const reader,
     .owns_backend = false,
     .read_hdr = false,
     .params = {
-      .prog_cb = NULL,
+      .prog_cb = (GKeyProgressFn *)NULL,
       .cb_arg = reader,
     },
-    .decomp = gkeydecomp_make(history_log_2),
   };
 
-  if (data->state.decomp == NULL) {
+  _Optional GKeyDecomp *const decomp = gkeydecomp_make(history_log_2);
+  if (decomp == NULL) {
     DEBUGF("Failed to create decompressor\n");
     free(data);
     return false;
   }
+  data->state.decomp = &*decomp;
 
   static ReaderFns const fns = {reader_gkey_fread, reader_gkey_destroy};
-  reader_internal_init(reader, &fns, data);
-  rewind_reinit(data);
+  reader_internal_init(reader, &fns, &*data);
+  rewind_reinit(&*data);
 
   return true;
 }
@@ -363,20 +365,20 @@ bool reader_gkey_init(Reader * const reader,
   assert(!ferror(in));
   assert(!feof(in));
 
-  Reader *const raw = malloc(sizeof(*raw));
+  _Optional Reader *const raw = malloc(sizeof(*raw));
   if (raw == NULL) {
     DEBUGF("Failed to allocate raw backend\n");
     return false;
   }
 
-  reader_raw_init(raw, in);
+  reader_raw_init(&*raw, in);
 
   bool const success = reader_gkey_init_from(
-    reader, history_log_2, raw);
+    reader, history_log_2, &*raw);
 
   if (!success) {
     DEBUGF("Failed to initialize a new reader\n");
-    reader_destroy(raw);
+    reader_destroy(&*raw);
     free(raw);
   } else {
     ReaderGKeyData *const data = reader->data;

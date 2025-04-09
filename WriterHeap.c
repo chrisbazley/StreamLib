@@ -21,6 +21,7 @@
   CJB: 26-Aug-19: Created this source file.
   CJB: 07-Sep-19: First released version.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -30,11 +31,11 @@
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "WriterHeap.h"
+#include "Internal/StreamMisc.h"
 
 typedef struct {
-  void **buffer;
+  _Optional void **buffer;
   size_t buffer_size;
 } WriterHeapData;
 
@@ -65,13 +66,13 @@ static bool resize_buffer(Writer * const writer, size_t const new_size)
   DEBUGF("realloc from %zu to %zu for writer\n",
     data->buffer_size, new_size);
 
-  void *const new_buffer = realloc(*data->buffer, new_size);
+  _Optional void *const new_buffer = realloc(*data->buffer, new_size);
   if (new_buffer == NULL) {
     DEBUGF("realloc failed\n");
     return false;
   }
 
-  *data->buffer = new_buffer;
+  *data->buffer = &*new_buffer;
   data->buffer_size = new_size;
   return true;
 }
@@ -151,14 +152,14 @@ static bool writer_heap_destroy(Writer * const writer)
   return success;
 }
 
-bool writer_heap_init(Writer * const writer, void ** const buffer,
+bool writer_heap_init(Writer * const writer, _Optional void ** const buffer,
   size_t const buffer_size)
 {
   assert(writer != NULL);
   assert(buffer != NULL);
   assert(buffer_size == 0 || *buffer != NULL);
 
-  WriterHeapData *const data = malloc(sizeof(*data));
+  _Optional WriterHeapData *const data = malloc(sizeof(*data));
   if (data == NULL) {
     DEBUGF("Failed to allocate memory for a new writer\n");
     return false;
@@ -170,7 +171,7 @@ bool writer_heap_init(Writer * const writer, void ** const buffer,
   };
 
   static WriterFns const fns = {writer_heap_fwrite, writer_heap_destroy};
-  writer_internal_init(writer, &fns, data);
+  writer_internal_init(writer, &fns, &*data);
 
   return true;
 }

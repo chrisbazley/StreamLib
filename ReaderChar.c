@@ -19,14 +19,15 @@
 
 /* History:
   CJB: 05-Nov-19: Split into a separate compilation unit.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
 #include <stdio.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "Reader.h"
+#include "Internal/StreamMisc.h"
 
 int reader_fgetc(Reader * const reader)
 {

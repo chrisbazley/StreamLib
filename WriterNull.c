@@ -20,14 +20,15 @@
 /* History:
   CJB: 29-Aug-19: Created this source file.
   CJB: 07-Sep-19: First released version.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "WriterNull.h"
+#include "Internal/StreamMisc.h"
 
 static size_t writer_null_fwrite(void const *ptr,
   size_t const size, Writer * const writer)
@@ -47,5 +48,5 @@ void writer_null_init(Writer * const writer)
 {
   assert(writer != NULL);
   static WriterFns const fns = {writer_null_fwrite, writer_null_destroy};
-  writer_internal_init(writer, &fns, NULL);
+  writer_internal_init(writer, &fns, writer);
 }

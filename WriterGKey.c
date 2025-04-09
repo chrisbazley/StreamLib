@@ -38,6 +38,7 @@
                   loop is used with a different termination condition.
   CJB: 03-Apr-21: Assert that the specified minimum size, and the uncompressed
                   size actually written to the file header, are not negative.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -54,9 +55,9 @@
 #include "GKeyComp.h"
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "WriterGKey.h"
 #include "WriterRaw.h"
+#include "Internal/StreamMisc.h"
 
 enum
 {
@@ -199,7 +200,7 @@ static bool flush(WriterGKeyData *const data)
   return true;
 }
 
-static unsigned long write_core(void const *ptr,
+static unsigned long write_core(_Optional void const *ptr,
   unsigned long const bytes_to_write, Writer *const writer)
 {
   assert(writer != NULL);
@@ -223,7 +224,7 @@ static unsigned long write_core(void const *ptr,
       if (ptr) {
         DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n",
                copy_size, space_avail);
-        memcpy(data->state.in_ptr, ptr, copy_size);
+        memcpy(data->state.in_ptr, &*ptr, copy_size);
         ptr = (char *)ptr + copy_size;
       } else {
         DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n",
@@ -360,7 +361,7 @@ bool writer_gkey_init_from(Writer * const writer,
   assert(out != NULL);
   assert(!writer_ferror(out));
 
-  WriterGKeyData *const data = malloc(sizeof(*data));
+  _Optional WriterGKeyData *const data = malloc(sizeof(*data));
   if (data == NULL) {
     DEBUGF("Failed to allocate writer data\n");
     return false;
@@ -372,23 +373,24 @@ bool writer_gkey_init_from(Writer * const writer,
     .wrote_hdr = false,
     .min_size = min_size,
     .params = {
-      .prog_cb = NULL,
+      .prog_cb = (GKeyProgressFn *)NULL,
       .cb_arg = writer,
     },
-    .comp = gkeycomp_make(history_log_2),
   };
 
-  if (data->state.comp == NULL) {
+  _Optional GKeyComp *const comp = gkeycomp_make(history_log_2);
+  if (comp == NULL) {
     DEBUGF("Failed to create compressor\n");
     free(data);
     return false;
   }
+  data->state.comp = &*comp;
 
   static WriterFns const fns = {writer_gkey_fwrite, writer_gkey_destroy};
-  writer_internal_init(writer, &fns, data);
+  writer_internal_init(writer, &fns, &*data);
 
-  prepare_for_input(data);
-  prepare_for_output(data);
+  prepare_for_input(&*data);
+  prepare_for_output(&*data);
 
   return true;
 }
@@ -403,20 +405,20 @@ bool writer_gkey_init(Writer * const writer,
   assert(out != NULL);
   assert(!ferror(out));
 
-  Writer *const raw = malloc(sizeof(*raw));
+  _Optional Writer *const raw = malloc(sizeof(*raw));
   if (raw == NULL) {
     DEBUGF("Failed to allocate raw backend\n");
     return false;
   }
 
-  writer_raw_init(raw, out);
+  writer_raw_init(&*raw, out);
 
   bool const success = writer_gkey_init_from(
-    writer, history_log_2, min_size, raw);
+    writer, history_log_2, min_size, &*raw);
 
   if (!success) {
     DEBUGF("Failed to initialize a new writer\n");
-    (void)writer_destroy(raw);
+    (void)writer_destroy(&*raw);
     free(raw);
   } else {
     WriterGKeyData *const data = writer->data;

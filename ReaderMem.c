@@ -21,6 +21,7 @@
   CJB: 24-Aug-19: Created this source file.
   CJB: 07-Sep-19: First released version.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -30,8 +31,8 @@
 #include <stdbool.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "ReaderMem.h"
+#include "Internal/StreamMisc.h"
 
 typedef struct {
   const char *buffer;
@@ -85,7 +86,7 @@ bool reader_mem_init(Reader *const reader, const void *const buffer,
   assert(reader != NULL);
   assert(buffer_size == 0 || buffer != NULL);
 
-  ReaderMemData *const data = malloc(sizeof(*data));
+  _Optional ReaderMemData *const data = malloc(sizeof(*data));
   if (data == NULL) {
     DEBUGF("Failed to allocate memory for a new reader\n");
     return false;
@@ -97,7 +98,7 @@ bool reader_mem_init(Reader *const reader, const void *const buffer,
   };
 
   static ReaderFns const fns = {reader_mem_fread, reader_mem_destroy};
-  reader_internal_init(reader, &fns, data);
+  reader_internal_init(reader, &fns, &*data);
 
   return true;
 }

@@ -1,7 +1,7 @@
 # StreamLib
 (C) 2019 Christopher Bazley
 
-Release 12 (19 May 2024)
+Release 13 (09 Apr 2025)
 
 Introduction
 ------------
@@ -207,6 +207,9 @@ Release 12 (19 May 2024)
   macro ACORN_FLEX is defined.
 - Test code that depends on Acorn's C library is now compiled only if
   macro ACORN_C is defined.
+
+Release 13 (09 Apr 2025)
+- Dogfooding the _Optional qualifier.
 
 Contact details
 ---------------

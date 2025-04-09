@@ -68,9 +68,9 @@ typedef enum  {
   WRITERTYPE_COUNT
 } WriterType;
 
-static void *anchors[NumberOfWriters];
-static void *buffers[NumberOfWriters];
-static FILE *f[NumberOfWriters];
+static _Optional void *anchors[NumberOfWriters];
+static _Optional void *buffers[NumberOfWriters];
+static _Optional FILE *f[NumberOfWriters];
 static int wnum = 0;
 static char file_names[NumberOfWriters][L_tmpnam];
 static long int out_size;
@@ -80,11 +80,13 @@ static void close_file(WriterType const wtype, int const handle)
   printf("Closing file with handle %d\n", handle);
   assert(handle >= 0);
   assert(handle < NumberOfWriters);
+  _Optional FILE *const fh = f[handle];
 
   switch (wtype) {
   case WRITERTYPE_RAW:
   case WRITERTYPE_GKEY:
-    if (fclose(f[handle])) { perror("fclose failed"); }
+    assert(fh);
+    if (fclose(&*fh)) { perror("fclose failed"); }
     f[handle] = NULL;
     break;
 
@@ -289,7 +291,7 @@ static void read_file(WriterType const wtype, void *const data,
         decomp_size |= (uint32_t)c << (CHAR_BIT * n);
       }
       assert(size == decomp_size);
-      GKeyDecomp *const decomp = gkeydecomp_make(HistoryLog2);
+      _Optional GKeyDecomp *const decomp = gkeydecomp_make(HistoryLog2);
       GKeyStatus stat = GKeyStatus_OK;
       GKeyParameters params = {
         .out_buffer = data,
@@ -305,7 +307,7 @@ static void read_file(WriterType const wtype, void *const data,
         }
         params.in_buffer = buf;
         params.in_size = n;
-        stat = gkeydecomp_decompress(decomp, &params);
+        stat = gkeydecomp_decompress(&*decomp, &params);
       } while (stat == GKeyStatus_OK ||
                stat == GKeyStatus_TruncatedInput);
 
@@ -332,8 +334,11 @@ static void read_file(WriterType const wtype, void *const data,
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
     size *= nmemb;
-    assert(size == 0 || buffers[handle]);
-    memcpy(data, buffers[handle], size);
+    if (size != 0) {
+      _Optional void *const bh = buffers[handle];
+      assert(bh);
+      memcpy(data, &*bh, size);
+    }
     break;
 
   case WRITERTYPE_NULL:
@@ -412,13 +417,18 @@ static bool init_writer(WriterType const wtype, Writer *const w,
   assert(handle < NumberOfWriters);
   printf("Init writer with size %zu and handle %d\n", min_size, handle);
 
+  _Optional FILE *const fh = f[handle];
+  _Optional void *const bh = buffers[handle];
+
   switch (wtype) {
   case WRITERTYPE_RAW:
-    writer_raw_init(w, f[handle]);
+    assert(fh);
+    writer_raw_init(w, &*fh);
     break;
 
   case WRITERTYPE_GKEY:
-    success = writer_gkey_init(w, HistoryLog2, min_size, f[handle]);
+  assert(fh);
+  success = writer_gkey_init(w, HistoryLog2, min_size, &*fh);
     break;
 
   case WRITERTYPE_GKC:
@@ -433,7 +443,7 @@ static bool init_writer(WriterType const wtype, Writer *const w,
 #endif
 
   case WRITERTYPE_MEM:
-    success = writer_mem_init(w, buffers[handle], min_size);
+    success = writer_mem_init(w, bh, min_size);
     break;
 
   case WRITERTYPE_HEAP:
@@ -1104,14 +1114,16 @@ static void test22(WriterType const wtype)
   }
 
   if (wtype == WRITERTYPE_RAW) {
-    rewind(f[handle]);
-    assert(!ferror(f[handle]));
-    assert(fputc(TEST_STR[0], f[handle]) == TEST_STR[0]);
-    assert(fseek(f[handle], -2, SEEK_CUR));
+    _Optional FILE *const fh = f[handle];
+    assert(fh);
+    rewind(&*fh);
+    assert(!ferror(&*fh));
+    assert(fputc(TEST_STR[0], &*fh) == TEST_STR[0]);
+    assert(fseek(&*fh, -2, SEEK_CUR));
     /* Result depends on standard C library */
-    assert(ftell(f[handle]) == 1);
+    assert(ftell(&*fh) == 1);
 #ifdef ACORN_C
-    assert(ferror(f[handle]));
+    assert(ferror(fh));
 #endif
     /* End of C library-dependent code */
   }
@@ -1186,13 +1198,15 @@ static void test24(WriterType const wtype)
   }
 
   if (wtype == WRITERTYPE_RAW) {
-    rewind(f[handle]);
-    assert(fputc(TEST_STR[0], f[handle]) == TEST_STR[0]);
-    assert(fseek(f[handle], -1, SEEK_SET));
+    _Optional FILE *const fh = f[handle];
+    assert(fh);
+    rewind(&*fh);
+    assert(fputc(TEST_STR[0], &*fh) == TEST_STR[0]);
+    assert(fseek(&*fh, -1, SEEK_SET));
     /* Result depends on standard C library */
-    assert(ftell(f[handle]) == 1);
+    assert(ftell(&*fh) == 1);
 #ifdef ACORN_C
-    assert(ferror(f[handle]));
+    assert(ferror(&*fh));
 #endif
     /* End of C library-dependent code */
   }

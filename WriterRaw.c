@@ -20,6 +20,7 @@
 /* History:
   CJB: 11-Aug-19: Created this source file.
   CJB: 07-Sep-19: First released version.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -31,8 +32,8 @@
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "WriterRaw.h"
+#include "Internal/StreamMisc.h"
 
 static size_t writer_raw_fwrite(void const *ptr,
   size_t const size, Writer * const writer)

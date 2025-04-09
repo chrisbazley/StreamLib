@@ -23,6 +23,7 @@
   CJB: 10-Nov-19: Allow reading from a null anchor (treated as a stream of
                   length 0).
   CJB: 21-Nov-20: Improved debug output on seek failure.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -35,8 +36,8 @@
 #include "flex.h"
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "ReaderFlex.h"
+#include "Internal/StreamMisc.h"
 
 static int buffer_size(flex_ptr const anchor)
 {

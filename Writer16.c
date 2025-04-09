@@ -20,6 +20,7 @@
 /* History:
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 10-Jul-20: Added signed 16-bit write function.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -28,8 +29,8 @@
 #include <limits.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "Writer.h"
+#include "Internal/StreamMisc.h"
 
 bool writer_fwrite_uint16(uint16_t const val, Writer * const writer)
 {

@@ -20,6 +20,7 @@
 /* History:
   CJB: 30-Aug-19: Created this source file.
   CJB: 07-Sep-19: First released version.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -29,8 +30,8 @@
 #include <stdbool.h>
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "ReaderNull.h"
+#include "Internal/StreamMisc.h"
 
 static size_t reader_null_fread(void *ptr, size_t const size,
                                 Reader * const reader)
@@ -51,5 +52,5 @@ void reader_null_init(Reader *const reader)
 {
   assert(reader != NULL);
   static ReaderFns const fns = {reader_null_fread, reader_null_destroy};
-  reader_internal_init(reader, &fns, NULL);
+  reader_internal_init(reader, &fns, reader);
 }

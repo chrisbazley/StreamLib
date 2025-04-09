@@ -63,9 +63,9 @@ typedef enum  {
 #ifdef ACORN_FLEX
 static void *anchor;
 #endif
-static void *buffer;
+static _Optional void *buffer;
 static size_t buffer_size;
-static FILE *f;
+static _Optional FILE *f;
 static char file_name[L_tmpnam];
 
 static void make_file(ReaderType const rtype, const void *const data,
@@ -80,11 +80,11 @@ static void make_file(ReaderType const rtype, const void *const data,
 
     /* Standard C library cannot necessarily read size=0 */
     if (size > 0) {
-      size_t const n = fwrite(data, size, nmemb, f);
+      size_t const n = fwrite(data, size, nmemb, &*f);
       if (n != nmemb) { perror("Failed to write to file"); }
       assert(n == nmemb);
     }
-    f = freopen(file_name, "rb", f);
+    f = freopen(file_name, "rb", &*f);
     assert(f != NULL);
     break;
 
@@ -96,12 +96,12 @@ static void make_file(ReaderType const rtype, const void *const data,
 
     size *= nmemb;
 
-    assert(fputc(size & UCHAR_MAX, f) >= 0);
-    assert(fputc((size >> CHAR_BIT) & UCHAR_MAX, f) >= 0);
-    assert(fputc((size >> (CHAR_BIT * 2)) & UCHAR_MAX, f) >= 0);
-    assert(fputc((size >> (CHAR_BIT * 3)) & UCHAR_MAX, f) >= 0);
+    assert(fputc(size & UCHAR_MAX, &*f) >= 0);
+    assert(fputc((size >> CHAR_BIT) & UCHAR_MAX, &*f) >= 0);
+    assert(fputc((size >> (CHAR_BIT * 2)) & UCHAR_MAX, &*f) >= 0);
+    assert(fputc((size >> (CHAR_BIT * 3)) & UCHAR_MAX, &*f) >= 0);
     {
-      GKeyComp *const comp = gkeycomp_make(HistoryLog2);
+      _Optional GKeyComp *const comp = gkeycomp_make(HistoryLog2);
       GKeyStatus stat;
       char buf[BufferSize];
       GKeyParameters params = {
@@ -112,10 +112,12 @@ static void make_file(ReaderType const rtype, const void *const data,
       {
         params.out_buffer = buf;
         params.out_size = sizeof(buf);
-        stat = gkeycomp_compress(comp, &params);
+        assert(comp);
+        stat = gkeycomp_compress(&*comp, &params);
         /* Standard C library cannot necessarily read size=0 */
         if (sizeof(buf) - params.out_size > 0) {
-          size_t const n = fwrite(buf, sizeof(buf) - params.out_size, 1, f);
+          assert(f);
+          size_t const n = fwrite(buf, sizeof(buf) - params.out_size, 1, &*f);
           if (n != 1) { perror("Failed to write to file"); }
           assert(n == 1);
         }
@@ -127,7 +129,8 @@ static void make_file(ReaderType const rtype, const void *const data,
 
       gkeycomp_destroy(comp);
     }
-    f = freopen(file_name, "rb", f);
+    assert(f != NULL);
+    f = freopen(file_name, "rb", &*f);
     assert(f != NULL);
     break;
 
@@ -151,7 +154,7 @@ static void make_file(ReaderType const rtype, const void *const data,
     buffer = malloc(size);
     buffer_size = size;
     assert(buffer != NULL);
-    memcpy(buffer, data, size);
+    memcpy(&*buffer, data, size);
     break;
 
   default:
@@ -170,7 +173,8 @@ static void rewind_file(ReaderType const rtype)
   switch (rtype) {
   case READERTYPE_RAW:
   case READERTYPE_GKEY:
-    rewind(f);
+    assert(f);
+    rewind(&*f);
     break;
 
 #ifdef ACORN_FLEX
@@ -190,7 +194,8 @@ static void delete_file(ReaderType const rtype)
   switch (rtype) {
   case READERTYPE_RAW:
   case READERTYPE_GKEY:
-    assert(!fclose(f));
+    assert(f);
+    assert(!fclose(&*f));
     remove(file_name);
     f = NULL;
     break;
@@ -217,11 +222,13 @@ static void init_reader(ReaderType const rtype, Reader *const r)
 {
   switch (rtype) {
   case READERTYPE_RAW:
-    reader_raw_init(r, f);
+    assert(f);
+    reader_raw_init(r, &*f);
     break;
 
   case READERTYPE_GKEY:
-    assert(reader_gkey_init(r, HistoryLog2, f));
+    assert(f);
+    assert(reader_gkey_init(r, HistoryLog2, &*f));
     break;
 
 #ifdef ACORN_FLEX
@@ -231,7 +238,8 @@ static void init_reader(ReaderType const rtype, Reader *const r)
 #endif
 
   case READERTYPE_MEM:
-    assert(reader_mem_init(r, buffer, buffer_size));
+    assert(buffer);
+    assert(reader_mem_init(r, &*buffer, buffer_size));
     break;
 
   default:
@@ -966,16 +974,17 @@ static void test22(ReaderType const rtype)
 
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
-    assert(!ferror(f));
-    assert(fgetc(f) == TEST_STR[0]);
-    assert(fseek(f, -2, SEEK_CUR));
+    assert(f);
+    assert(!ferror(&*f));
+    assert(fgetc(&*f) == TEST_STR[0]);
+    assert(fseek(&*f, -2, SEEK_CUR));
     /* Result depends on standard C library */
-    assert(ftell(f) == 1);
+    assert(ftell(&*f) == 1);
 #ifdef ACORN_C
-    assert(ferror(f));
+    assert(ferror(&*f));
 #endif
     /* End of C library-dependent code */
-    assert(!feof(f));
+    assert(!feof(&*f));
   }
 
   delete_file(rtype);
@@ -1009,12 +1018,13 @@ static void test23(ReaderType const rtype)
 
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
-    assert(fgetc(f) == TEST_STR[0]);
-    assert(!fseek(f, strlen(TEST_STR)*2l, SEEK_CUR));
-    assert(ftell(f) == (strlen(TEST_STR)*2l) + 1l);
-    assert(!feof(f));
-    assert(!ferror(f));
-    assert(fgetc(f) == EOF);
+    assert(f);
+    assert(fgetc(&*f) == TEST_STR[0]);
+    assert(!fseek(&*f, strlen(TEST_STR)*2l, SEEK_CUR));
+    assert(ftell(&*f) == (strlen(TEST_STR)*2l) + 1l);
+    assert(!feof(&*f));
+    assert(!ferror(&*f));
+    assert(fgetc(&*f) == EOF);
     /* Result depends on standard C library */
 #ifdef ACORN_C
     assert(!feof(f));
@@ -1044,15 +1054,16 @@ static void test24(ReaderType const rtype)
 
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
-    assert(fgetc(f) == TEST_STR[0]);
-    assert(fseek(f, -1, SEEK_SET));
+    assert(f);
+    assert(fgetc(&*f) == TEST_STR[0]);
+    assert(fseek(&*f, -1, SEEK_SET));
     /* Result depends on standard C library */
-    assert(ftell(f) == 1);
+    assert(ftell(&*f) == 1);
 #ifdef ACORN_C
-    assert(ferror(f));
+    assert(ferror(&*f));
 #endif
     /* End of C library-dependent code */
-    assert(!feof(f));
+    assert(!feof(&*f));
   }
 
   delete_file(rtype);
@@ -1108,12 +1119,13 @@ static void test26(ReaderType const rtype)
 
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
-    assert(fgetc(f) == TEST_STR[0]);
-    assert(!fseek(f, strlen(TEST_STR)*2l, SEEK_SET));
-    assert(ftell(f) == strlen(TEST_STR)*2l);
-    assert(!feof(f));
-    assert(!ferror(f));
-    assert(fgetc(f) == EOF);
+    assert(f);
+    assert(fgetc(&*f) == TEST_STR[0]);
+    assert(!fseek(&*f, strlen(TEST_STR)*2l, SEEK_SET));
+    assert(ftell(&*f) == strlen(TEST_STR)*2l);
+    assert(!feof(&*f));
+    assert(!ferror(&*f));
+    assert(fgetc(&*f) == EOF);
     /* Result depends on standard C library */
 #ifdef ACORN_C
     assert(!feof(f));

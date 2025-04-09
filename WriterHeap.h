@@ -25,6 +25,7 @@ History:
   CJB: 01-Sep-19: First released version.
   CJB: 08-Sep-19: Add missing #include.
   CJB: 28-Jul-22: Removed redundant use of 'extern' and 'const'.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 #ifndef WriterHeap_h
@@ -38,8 +39,12 @@ History:
 /* Local header files */
 #include "Writer.h"
 
+#if !defined(USE_OPTIONAL) && !defined(_Optional)
+#define _Optional
+#endif
+
 bool writer_heap_init(Writer */*writer*/,
-  void **/*buffer*/, size_t /*buffer_size*/);
+  _Optional void **/*buffer*/, size_t /*buffer_size*/);
    /*
     * creates an abstract writer object to allow data to be stored in an
     * buffer for which space was allocated by calling malloc, as if the

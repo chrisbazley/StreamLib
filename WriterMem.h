@@ -24,6 +24,7 @@ History:
   CJB: 25-Aug-19: Created this source file.
   CJB: 01-Sep-19: First released version.
   CJB: 28-Jul-22: Removed redundant use of 'extern' and 'const'.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 #ifndef WriterMem_h
@@ -36,8 +37,12 @@ History:
 /* Local header files */
 #include "Writer.h"
 
+#if !defined(USE_OPTIONAL) && !defined(_Optional)
+#define _Optional
+#endif
+
 bool writer_mem_init(Writer */*writer*/,
-  void */*buffer*/, size_t /*buffer_size*/);
+  _Optional void */*buffer*/, size_t /*buffer_size*/);
    /*
     * creates an abstract writer object to allow data to be stored in the
     * array pointed to by 'buffer' as if it were stored in a file.

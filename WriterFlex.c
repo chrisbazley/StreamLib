@@ -21,6 +21,7 @@
   CJB: 25-Aug-19: Created this source file.
   CJB: 07-Sep-19: First released version.
   CJB: 07-Jun-20: Fixed misplaced "Seeking offset..." debugging output.
+  CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
 */
 
 /* ISO library header files */
@@ -33,8 +34,8 @@
 #include "flex.h"
 
 /* Local headers */
-#include "Internal/StreamMisc.h"
 #include "WriterFlex.h"
+#include "Internal/StreamMisc.h"
 
 static void zero_extend(Writer * const writer, size_t const new_size)
 {
