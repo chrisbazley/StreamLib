@@ -26,7 +26,7 @@ set_target_properties(Stream PROPERTIES
     DEBUG_POSTFIX "dbg"
 )
 
-target_include_directories(Stream PRIVATE .)
+target_include_directories(Stream PUBLIC .)
 target_compile_definitions(Stream PRIVATE $<$<CONFIG:Debug>:DEBUG_OUTPUT>)
 target_link_libraries(Stream PRIVATE gkey)
 install(TARGETS Stream
