@@ -3,9 +3,9 @@ project(StreamLib C)
 
 include(FetchContent)
 
-FetchContent_Declare(gkey GIT_REPOSITORY git@github.com:chrisbazley/GKeyLib.git GIT_TAG main)
+FetchContent_Declare(GKey GIT_REPOSITORY git@github.com:chrisbazley/GKeyLib.git GIT_TAG main)
 
-FetchContent_MakeAvailable(gkey)
+FetchContent_MakeAvailable(GKey)
 
 
 set(CMAKE_C_STANDARD 99)
@@ -20,7 +20,7 @@ set(SOURCES Reader.c ReaderRaw.c ReaderGKey.c ReaderMem.c ReaderNull.c
 file(GLOB PUBLIC_HEADERS "*.h")
 
 add_library(Stream STATIC ${SOURCES} ${PUBLIC_HEADERS})
-target_link_libraries(Stream PRIVATE gkey)
+target_link_libraries(Stream PRIVATE GKey)
 set_target_properties(Stream PROPERTIES
     PUBLIC_HEADER "${PUBLIC_HEADERS}"
     DEBUG_POSTFIX "dbg"
@@ -28,7 +28,6 @@ set_target_properties(Stream PROPERTIES
 
 target_include_directories(Stream PUBLIC .)
 target_compile_definitions(Stream PRIVATE $<$<CONFIG:Debug>:DEBUG_OUTPUT>)
-target_link_libraries(Stream PRIVATE gkey)
 install(TARGETS Stream
     ARCHIVE DESTINATION lib
     PUBLIC_HEADER DESTINATION include
