@@ -28,6 +28,7 @@
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 03-Apr-21: Assert that the specified minimum size is not negative.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
 */
 
 /* ISO library header files */
@@ -98,7 +99,7 @@ static void flush(WriterGKeyData *const data)
   empty_in(data);
 }
 
-static void write_core(_Optional void const *ptr,
+static void write_core(_Optional char const *ptr,
   unsigned long const bytes_to_write, Writer *const writer)
 {
   assert(writer != NULL);
@@ -123,7 +124,7 @@ static void write_core(_Optional void const *ptr,
         DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n",
                copy_size, space_avail);
         memcpy(data->state.in_ptr, &*ptr, copy_size);
-        ptr = (char *)ptr + copy_size;
+        ptr = ptr + copy_size;
       } else {
         DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n",
                copy_size, space_avail);
