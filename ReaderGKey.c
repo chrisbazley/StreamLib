@@ -26,6 +26,7 @@
   CJB: 07-Jun-20: Debugging output is less verbose by default.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
 */
 
 /* ISO library header files */
@@ -81,7 +82,7 @@ static void rewind_reinit(ReaderGKeyData *const data)
   data->state.params.in_size = 0;
 }
 
-static unsigned long read_core(_Optional void *ptr, unsigned long const bytes_to_read,
+static unsigned long read_core(_Optional char *ptr, unsigned long const bytes_to_read,
   Reader * const reader)
 {
   unsigned long bytes_read = 0;
@@ -106,7 +107,7 @@ static unsigned long read_core(_Optional void *ptr, unsigned long const bytes_to
         DEBUG_VERBOSEF("Copying %zu of %zu bytes from output buffer\n",
                copy_size, bytes_avail);
         memcpy(&*ptr, data->state.out_ptr, copy_size);
-        ptr = (char *)ptr + copy_size;
+        ptr = ptr + copy_size;
       }
       data->state.out_ptr += copy_size;
       bytes_read += copy_size;
