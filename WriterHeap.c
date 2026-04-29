@@ -22,6 +22,7 @@
   CJB: 07-Sep-19: First released version.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
 */
 
 /* ISO library header files */
@@ -66,7 +67,7 @@ static bool resize_buffer(Writer * const writer, size_t const new_size)
   DEBUGF("realloc from %zu to %zu for writer\n",
     data->buffer_size, new_size);
 
-  _Optional void *const new_buffer = realloc(*data->buffer, new_size);
+  _Optional char *const new_buffer = realloc(*data->buffer, new_size);
   if (new_buffer == NULL) {
     DEBUGF("realloc failed\n");
     return false;
