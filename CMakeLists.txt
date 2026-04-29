@@ -11,7 +11,15 @@ FetchContent_MakeAvailable(GKey)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-pedantic)
+
+if(MSVC)
+    # MSVC equivalent of -Wall -Wextra is /W4
+    add_compile_options(/W4)
+else()
+    # For GCC and Clang
+    add_compile_options(-Wall -Wextra)
+endif()
 
 set(SOURCES Reader.c ReaderRaw.c ReaderGKey.c ReaderMem.c ReaderNull.c
              ReaderChar.c Reader16.c Reader32.c ReaderSeek.c
