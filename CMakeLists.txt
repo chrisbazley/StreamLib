@@ -3,7 +3,7 @@ project(StreamLib C)
 
 include(FetchContent)
 
-FetchContent_Declare(GKey GIT_REPOSITORY git@github.com:chrisbazley/GKeyLib.git GIT_TAG main)
+FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.git GIT_TAG main)
 
 FetchContent_MakeAvailable(GKey)
 
