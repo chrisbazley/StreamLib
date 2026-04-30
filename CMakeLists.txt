@@ -8,8 +8,6 @@ FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.
 FetchContent_MakeAvailable(GKey)
 
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 if(MSVC)
     # MSVC equivalent of -Wall -Wextra is /W4
@@ -33,7 +31,13 @@ set_target_properties(Stream PROPERTIES
 )
 
 target_include_directories(Stream PUBLIC .)
-target_compile_definitions(Stream PRIVATE $<$<CONFIG:Debug>:DEBUG_OUTPUT>)
+
+target_compile_definitions(Stream PRIVATE
+    $<$<CONFIG:Debug>:DEBUG_OUTPUT>
+    $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:Release>:-O3>
+)
+
 install(TARGETS Stream
     ARCHIVE DESTINATION lib
     PUBLIC_HEADER DESTINATION include
