@@ -42,6 +42,7 @@
 #include "Tests.h"
 
 #define TEST_STR "qwerty"
+#define TEST_STR_LEN (sizeof(TEST_STR) - 1u)
 
 enum
 {
@@ -562,7 +563,7 @@ static void put_chars(WriterType const wtype, const char *const expected,
 static void test2(WriterType const wtype)
 {
   /* Put char */
-  put_chars(wtype, TEST_STR, strlen(TEST_STR), strlen(TEST_STR));
+  put_chars(wtype, TEST_STR, TEST_STR_LEN, TEST_STR_LEN);
 }
 
 static void test3(WriterType const wtype)
@@ -607,13 +608,13 @@ static void test3(WriterType const wtype)
 static void test4(WriterType const wtype)
 {
   /* Put more chars than expected */
-  put_chars(wtype, TEST_STR, strlen(TEST_STR), 1);
+  put_chars(wtype, TEST_STR, TEST_STR_LEN, 1);
 }
 
 static void test5(WriterType const wtype)
 {
   /* Put fewer chars than expected */
-  put_chars(wtype, TEST_STR, strlen(TEST_STR), strlen(TEST_STR) + TailLen);
+  put_chars(wtype, TEST_STR, TEST_STR_LEN, TEST_STR_LEN + TailLen);
 }
 
 static void test8(WriterType const wtype)
@@ -909,12 +910,12 @@ static void cur_forward(WriterType const wtype, size_t const min_size)
       assert(!writer_ferror(&w));
     }
 
-    const size_t seek_pos = strlen(TEST_STR) - TailLen;
+    const size_t seek_pos = TEST_STR_LEN - TailLen;
     assert(!writer_fseek(&w, (long)seek_pos - HeadLen, SEEK_CUR));
     assert(writer_ftell(&w) == (long)seek_pos);
     assert(!writer_ferror(&w));
 
-    for (size_t n = seek_pos; n < strlen(TEST_STR); ++n) {
+    for (size_t n = seek_pos; n < TEST_STR_LEN; ++n) {
       if (file_is_extensible(wtype) || n < min_size) {
         assert(writer_fputc(TEST_STR[n], &w) == TEST_STR[n]);
         assert(writer_ftell(&w) == (long)n + 1l);
@@ -930,18 +931,18 @@ static void cur_forward(WriterType const wtype, size_t const min_size)
       }
     }
 
-    destroy_and_check(wtype, &w, strlen(TEST_STR));
+    destroy_and_check(wtype, &w, TEST_STR_LEN);
   }
 
   close_file(wtype, handle);
 
   if (!discards_writes(wtype) &&
-      (file_is_extensible(wtype) || strlen(TEST_STR) <= min_size)) {
-    unsigned char buf[strlen(TEST_STR)];
+      (file_is_extensible(wtype) || TEST_STR_LEN <= min_size)) {
+    unsigned char buf[TEST_STR_LEN];
     read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
-      if (n < HeadLen || n >= strlen(TEST_STR) - TailLen) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
+      if (n < HeadLen || n >= TEST_STR_LEN - TailLen) {
         assert(buf[n] == TEST_STR[n]);
       } else {
         assert(buf[n] == 0);
@@ -955,7 +956,7 @@ static void cur_forward(WriterType const wtype, size_t const min_size)
 static void test17(WriterType const wtype)
 {
   /* Seek forward from current */
-  cur_forward(wtype, strlen(TEST_STR));
+  cur_forward(wtype, TEST_STR_LEN);
 }
 
 static void test18(WriterType const wtype)
@@ -1001,14 +1002,14 @@ static void test20(WriterType const wtype)
   int handle;
   {
     Writer w;
-    handle = open_file_and_init_writer(wtype, &w, strlen(TEST_STR));
+    handle = open_file_and_init_writer(wtype, &w, TEST_STR_LEN);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
       assert(writer_fputc(TEST_STR[n], &w) == TEST_STR[n]);
     }
 
     /* We should always be able to move the write position */
-    assert(!writer_fseek(&w, -(long)strlen(TEST_STR) + Offset, SEEK_CUR));
+    assert(!writer_fseek(&w, -(long)TEST_STR_LEN + Offset, SEEK_CUR));
     assert(writer_ftell(&w) == Offset);
     assert(!writer_ferror(&w));
 
@@ -1023,16 +1024,16 @@ static void test20(WriterType const wtype)
       assert(writer_ferror(&w));
     }
 
-    destroy_and_check(wtype, &w, strlen(TEST_STR));
+    destroy_and_check(wtype, &w, TEST_STR_LEN);
   }
 
   close_file(wtype, handle);
 
   if (!discards_writes(wtype) && can_seek_back(wtype)) {
-    unsigned char buf[strlen(TEST_STR)];
+    unsigned char buf[TEST_STR_LEN];
     read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
       if (n == Offset) {
         assert(buf[n] == '9');
       } else {
@@ -1050,7 +1051,7 @@ static void test21(WriterType const wtype)
   int handle;
   {
     Writer w;
-    handle = open_file_and_init_writer(wtype, &w, strlen(TEST_STR));
+    handle = open_file_and_init_writer(wtype, &w, TEST_STR_LEN);
 
     /* Write head of string */
     for (long int n = 0; n < HeadLen; ++n) {
@@ -1060,33 +1061,33 @@ static void test21(WriterType const wtype)
     }
 
     /* Seek end of string */
-    assert(!writer_fseek(&w, strlen(TEST_STR) - (long)HeadLen, SEEK_CUR));
-    assert(writer_ftell(&w) == strlen(TEST_STR));
+    assert(!writer_fseek(&w, TEST_STR_LEN - (long)HeadLen, SEEK_CUR));
+    assert(writer_ftell(&w) == TEST_STR_LEN);
     assert(!writer_ferror(&w));
 
     /* Seek start of tail */
     assert(!writer_fseek(&w, -(long)TailLen, SEEK_CUR));
-    assert(writer_ftell(&w) == strlen(TEST_STR) - (long)TailLen);
+    assert(writer_ftell(&w) == TEST_STR_LEN - (long)TailLen);
     assert(!writer_ferror(&w));
 
     /* Write tail of string */
-    for (size_t n = strlen(TEST_STR) - TailLen; n < strlen(TEST_STR); ++n) {
+    for (size_t n = TEST_STR_LEN - TailLen; n < TEST_STR_LEN; ++n) {
       assert(writer_fputc(TEST_STR[n], &w) == TEST_STR[n]);
       assert(writer_ftell(&w) == (long)n + 1l);
       assert(!writer_ferror(&w));
     }
 
-    destroy_and_check(wtype, &w, strlen(TEST_STR));
+    destroy_and_check(wtype, &w, TEST_STR_LEN);
   }
 
   close_file(wtype, handle);
 
   if (!discards_writes(wtype)) {
-    unsigned char buf[strlen(TEST_STR)];
+    unsigned char buf[TEST_STR_LEN];
     read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
-      if (n < HeadLen || n >= strlen(TEST_STR) - TailLen) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
+      if (n < HeadLen || n >= TEST_STR_LEN - TailLen) {
         assert(buf[n] == TEST_STR[n]);
       } else {
         assert(buf[n] == 0);
@@ -1138,9 +1139,9 @@ static void test23(WriterType const wtype)
   int handle;
   {
     Writer w;
-    handle = open_file_and_init_writer(wtype, &w, strlen(TEST_STR));
+    handle = open_file_and_init_writer(wtype, &w, TEST_STR_LEN);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
       assert(writer_fputc(TEST_STR[n], &w) == TEST_STR[n]);
     }
 
@@ -1160,16 +1161,16 @@ static void test23(WriterType const wtype)
       assert(writer_ferror(&w));
     }
 
-    destroy_and_check(wtype, &w, strlen(TEST_STR));
+    destroy_and_check(wtype, &w, TEST_STR_LEN);
   }
 
   close_file(wtype, handle);
 
   if (!discards_writes(wtype) && can_seek_back(wtype)) {
-    unsigned char buf[strlen(TEST_STR)];
+    unsigned char buf[TEST_STR_LEN];
     read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
       if (n == Offset) {
         assert(buf[n] == '9');
       } else {
@@ -1227,12 +1228,12 @@ static void set_forward(WriterType const wtype, size_t const min_size)
       assert(writer_fputc(TEST_STR[n], &w) == TEST_STR[n]);
     }
 
-    const size_t seek_pos = strlen(TEST_STR) - TailLen;
+    const size_t seek_pos = TEST_STR_LEN - TailLen;
     assert(!writer_fseek(&w, seek_pos, SEEK_SET));
     assert(writer_ftell(&w) == (long)seek_pos);
     assert(!writer_ferror(&w));
 
-    for (size_t n = seek_pos; n < strlen(TEST_STR); ++n) {
+    for (size_t n = seek_pos; n < TEST_STR_LEN; ++n) {
       if (file_is_extensible(wtype) || n < min_size) {
         assert(writer_fputc(TEST_STR[n], &w) == TEST_STR[n]);
         assert(writer_ftell(&w) == (long)n + 1l);
@@ -1248,17 +1249,17 @@ static void set_forward(WriterType const wtype, size_t const min_size)
       }
     }
 
-    destroy_and_check(wtype, &w, strlen(TEST_STR));
+    destroy_and_check(wtype, &w, TEST_STR_LEN);
   }
   close_file(wtype, handle);
 
   if (!discards_writes(wtype) &&
-      (file_is_extensible(wtype) || strlen(TEST_STR) <= min_size)) {
-    unsigned char buf[strlen(TEST_STR)];
+      (file_is_extensible(wtype) || TEST_STR_LEN <= min_size)) {
+    unsigned char buf[TEST_STR_LEN];
     read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
 
-    for (size_t n = 0; n < strlen(TEST_STR); ++n) {
-      if (n < HeadLen || n >= strlen(TEST_STR) - TailLen) {
+    for (size_t n = 0; n < TEST_STR_LEN; ++n) {
+      if (n < HeadLen || n >= TEST_STR_LEN - TailLen) {
         assert(buf[n] == TEST_STR[n]);
       } else {
         assert(buf[n] == 0);
@@ -1272,7 +1273,7 @@ static void set_forward(WriterType const wtype, size_t const min_size)
 static void test25(WriterType const wtype)
 {
   /* Seek forward from start */
-  set_forward(wtype, strlen(TEST_STR));
+  set_forward(wtype, TEST_STR_LEN);
 }
 
 static void test26(WriterType const wtype)
