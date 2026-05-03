@@ -153,8 +153,10 @@ static void make_file(ReaderType const rtype, const void *const data,
     assert(!buffer);
     buffer = malloc(size);
     buffer_size = size;
-    assert(buffer != NULL);
-    memcpy(&*buffer, data, size);
+    {
+      _Optional char *dst = buffer;
+      memcpy(&*dst, data, size);
+    }
     break;
 
   default:
