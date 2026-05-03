@@ -419,7 +419,7 @@ static bool init_writer(WriterType const wtype, Writer *const w,
   printf("Init writer with size %zu and handle %d\n", min_size, handle);
 
   _Optional FILE *const fh = f[handle];
-  _Optional void *const bh = buffers[handle];
+  _Optional char *const bh = buffers[handle];
 
   switch (wtype) {
   case WRITERTYPE_RAW:
