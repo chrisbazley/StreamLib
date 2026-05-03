@@ -549,7 +549,7 @@ static void put_chars(WriterType const wtype, const char *const expected,
     unsigned char buf[TEST_STR_LEN + TailLen];
     assert(min_size <= sizeof buf);
     assert(nelems <= sizeof buf);
-    read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
+    read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems, handle);
 
     for (size_t i = 0; i < nelems; ++i) {
       assert(buf[i] == expected[i]);
