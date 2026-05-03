@@ -979,8 +979,8 @@ static void test22(ReaderType const rtype)
     assert(fgetc(&*f) == TEST_STR[0]);
     assert(fseek(&*f, -2, SEEK_CUR));
     /* Result depends on standard C library */
-    assert(ftell(&*f) == 1);
 #ifdef ACORN_C
+    assert(ftell(&*f) == 1);
     assert(ferror(&*f));
 #endif
     /* End of C library-dependent code */
@@ -1058,8 +1058,8 @@ static void test24(ReaderType const rtype)
     assert(fgetc(&*f) == TEST_STR[0]);
     assert(fseek(&*f, -1, SEEK_SET));
     /* Result depends on standard C library */
-    assert(ftell(&*f) == 1);
 #ifdef ACORN_C
+    assert(ftell(&*f) == 1);
     assert(ferror(&*f));
 #endif
     /* End of C library-dependent code */
