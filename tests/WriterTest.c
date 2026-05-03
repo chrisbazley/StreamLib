@@ -678,8 +678,10 @@ static void write_mul(WriterType const wtype, const int *const expected,
       min_size = nelems;
     }
 
-    int buf[min_size > nelems ? min_size : nelems];
-    read_file(wtype, buf, sizeof(buf[0]), ARRAY_SIZE(buf), handle);
+    int buf[4 + TailLen];
+    assert(min_size <= ARRAY_SIZE(buf));
+    assert(nelems <= ARRAY_SIZE(buf));
+    read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems, handle);
 
     for (size_t i = 0; i < nelems; ++i) {
       assert(expected[i] == buf[i]);
