@@ -155,6 +155,7 @@ static void make_file(ReaderType const rtype, const void *const data,
     buffer_size = size;
     {
       _Optional char *dst = buffer;
+      assert(dst);
       memcpy(&*dst, data, size);
     }
     break;
