@@ -336,7 +336,7 @@ static void read_file(WriterType const wtype, void *const data,
   case WRITERTYPE_HEAP:
     size *= nmemb;
     if (size != 0) {
-      _Optional void *const bh = buffers[handle];
+      _Optional char *const bh = buffers[handle];
       assert(bh);
       memcpy(data, &*bh, size);
     }
