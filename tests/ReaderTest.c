@@ -63,7 +63,7 @@ typedef enum  {
 #ifdef ACORN_FLEX
 static void *anchor;
 #endif
-static _Optional void *buffer;
+static _Optional char *buffer;
 static size_t buffer_size;
 static _Optional FILE *f;
 static char file_name[L_tmpnam];
@@ -152,12 +152,9 @@ static void make_file(ReaderType const rtype, const void *const data,
     size *= nmemb;
     assert(!buffer);
     buffer = malloc(size);
+    assert(buffer);
     buffer_size = size;
-    {
-      _Optional char *dst = buffer;
-      assert(dst);
-      memcpy(&*dst, data, size);
-    }
+    memcpy(&*buffer, data, size);
     break;
 
   default:
