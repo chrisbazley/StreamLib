@@ -841,7 +841,7 @@ static void test15(WriterType const wtype)
   close_file(wtype, handle);
 
   if (!discards_writes(wtype)) {
-    unsigned char buf[j];
+    unsigned char buf[ARRAY_SIZE(e) * sizeof(e[0])];
     read_file(wtype, buf, sizeof(buf[0]), j, handle);
 
     for (size_t n = 0; n < j; ++n) {
@@ -888,7 +888,7 @@ static void test16(WriterType const wtype)
   close_file(wtype, handle);
 
   if (!discards_writes(wtype)) {
-    unsigned char buf[j];
+    unsigned char buf[ARRAY_SIZE(e) * sizeof(e[0])];
     read_file(wtype, buf, sizeof(buf[0]), j, handle);
 
     for (size_t n = 0; n < j; ++n) {
