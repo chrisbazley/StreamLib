@@ -35,11 +35,11 @@ History:
 /* Local header files */
 #include "Reader.h"
 
-void reader_raw_init(Reader */*reader*/, FILE */*in*/);
-   /*
-    * creates an abstract reader object to allow the contents of a file
-    * to be read through an interface that can also abstract other data
-    * sources.
-    */
+void reader_raw_init(Reader * /*reader*/, FILE * /*in*/);
+/*
+ * creates an abstract reader object to allow the contents of a file
+ * to be read through an interface that can also abstract other data
+ * sources.
+ */
 
 #endif /* ReaderRaw_h */

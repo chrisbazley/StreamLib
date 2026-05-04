@@ -35,10 +35,10 @@ History:
 /* Local header files */
 #include "Writer.h"
 
-void writer_raw_init(Writer */*writer*/, FILE */*out*/);
-   /*
-    * creates an abstract writer object to allow a file to be written
-    * through an interface that can also abstract other data stores.
-    */
+void writer_raw_init(Writer * /*writer*/, FILE * /*out*/);
+/*
+ * creates an abstract writer object to allow a file to be written
+ * through an interface that can also abstract other data stores.
+ */
 
 #endif /* WriterRaw_h */

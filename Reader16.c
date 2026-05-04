@@ -24,15 +24,15 @@
 */
 
 /* ISO library header files */
-#include <stdint.h>
-#include <stdbool.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /* Local headers */
-#include "Reader.h"
 #include "Internal/StreamMisc.h"
+#include "Reader.h"
 
-bool reader_fread_uint16(uint16_t * const ptr, Reader * const reader)
+bool reader_fread_uint16(uint16_t *const ptr, Reader *const reader)
 {
   assert(ptr != NULL);
 
@@ -46,7 +46,7 @@ bool reader_fread_uint16(uint16_t * const ptr, Reader * const reader)
   return true;
 }
 
-bool reader_fread_int16(int16_t * const ptr, Reader * const reader)
+bool reader_fread_int16(int16_t *const ptr, Reader *const reader)
 {
   uint16_t val;
   if (!reader_fread_uint16(&val, reader)) {

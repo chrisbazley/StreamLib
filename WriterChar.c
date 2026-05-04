@@ -26,10 +26,10 @@
 #include <stdio.h>
 
 /* Local headers */
-#include "Writer.h"
 #include "Internal/StreamMisc.h"
+#include "Writer.h"
 
-int writer_fputc(int const c, Writer * const writer)
+int writer_fputc(int const c, Writer *const writer)
 {
   unsigned char cc = c;
   assert(writer != NULL);

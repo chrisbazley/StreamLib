@@ -26,11 +26,10 @@
 #include <stdio.h>
 
 /* Local headers */
-#include "Writer.h"
 #include "Internal/StreamMisc.h"
+#include "Writer.h"
 
-int writer_fseek(Writer * const writer, long int const offset,
-  int const whence)
+int writer_fseek(Writer *const writer, long int const offset, int const whence)
 {
   /* It's tempting to disallow all backward seeks for simplicity but
      we cannot if we want to allow the Gordon Key compressed file writer
@@ -39,34 +38,34 @@ int writer_fseek(Writer * const writer, long int const offset,
   assert(writer->fpos >= 0);
 
   switch (whence) {
-    case SEEK_CUR:
-      DEBUGF("Seeking %ld bytes beyond the current position\n", offset);
-      /* -offset may not be representable if -LONG_MIN > LONG_MAX */
-      if ((offset < 0) && (offset < -writer->fpos)) {
-        writer->error = 1;
-        return -1; /* not supported */
-      }
-      if (offset != 0) {
-        writer->fpos += offset;
-        writer->repos = 1;
-      }
-      break;
+  case SEEK_CUR:
+    DEBUGF("Seeking %ld bytes beyond the current position\n", offset);
+    /* -offset may not be representable if -LONG_MIN > LONG_MAX */
+    if ((offset < 0) && (offset < -writer->fpos)) {
+      writer->error = 1;
+      return -1; /* not supported */
+    }
+    if (offset != 0) {
+      writer->fpos += offset;
+      writer->repos = 1;
+    }
+    break;
 
-    case SEEK_SET:
-      DEBUGF("Seeking %ld bytes beyond the start\n", offset);
-      if (offset < 0) {
-        writer->error = 1;
-        return -1; /* invalid offset */
-      }
-      if (offset != writer->fpos) {
-        writer->fpos = offset;
-        writer->repos = 1;
-      }
-      break;
+  case SEEK_SET:
+    DEBUGF("Seeking %ld bytes beyond the start\n", offset);
+    if (offset < 0) {
+      writer->error = 1;
+      return -1; /* invalid offset */
+    }
+    if (offset != writer->fpos) {
+      writer->fpos = offset;
+      writer->repos = 1;
+    }
+    break;
 
-    default:
-      /* A binary stream need not meaningfully support SEEK_END */
-      return -1;
+  default:
+    /* A binary stream need not meaningfully support SEEK_END */
+    return -1;
   }
   assert(writer->fpos >= 0);
   return 0;

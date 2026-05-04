@@ -25,19 +25,19 @@
 */
 
 /* ISO library header files */
+#include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <limits.h>
 
 /* Acorn C/C++ header files */
 #include "flex.h"
 
 /* Local headers */
-#include "WriterFlex.h"
 #include "Internal/StreamMisc.h"
+#include "WriterFlex.h"
 
-static void zero_extend(Writer * const writer, size_t const new_size)
+static void zero_extend(Writer *const writer, size_t const new_size)
 {
   assert(writer != NULL);
   flex_ptr const anchor = writer->data;
@@ -45,8 +45,7 @@ static void zero_extend(Writer * const writer, size_t const new_size)
 
   assert(new_size >= (unsigned long)writer->flen);
   size_t const bytes_to_skip = new_size - (size_t)writer->flen;
-  DEBUGF("Zeroing %zu bytes at offset %ld\n",
-    bytes_to_skip, writer->flen);
+  DEBUGF("Zeroing %zu bytes at offset %ld\n", bytes_to_skip, writer->flen);
 
   if (bytes_to_skip > 0) {
     assert(anchor != NULL);
@@ -67,12 +66,11 @@ static bool resize_buffer(flex_ptr const anchor, int const new_size)
 {
   assert(anchor != NULL);
 
-  DEBUGF("flex_extend from %d to %d for writer\n",
-    buffer_size(anchor), new_size);
+  DEBUGF("flex_extend from %d to %d for writer\n", buffer_size(anchor),
+         new_size);
 
-  int const success = *anchor ?
-      flex_extend(anchor, new_size) :
-      flex_alloc(anchor, new_size);
+  int const success =
+    *anchor ? flex_extend(anchor, new_size) : flex_alloc(anchor, new_size);
 
   if (!success) {
     DEBUGF("flex_extend failed\n");
@@ -82,8 +80,8 @@ static bool resize_buffer(flex_ptr const anchor, int const new_size)
   return true;
 }
 
-static size_t writer_flex_fwrite(void const *ptr,
-  size_t const size, Writer * const writer)
+static size_t writer_flex_fwrite(void const *ptr, size_t const size,
+                                 Writer *const writer)
 {
   assert(ptr != NULL);
   assert(writer != NULL);
@@ -97,8 +95,8 @@ static size_t writer_flex_fwrite(void const *ptr,
     (SIZE_MAX < (unsigned)INT_MAX ? SIZE_MAX : (unsigned)INT_MAX);
 
   if (end > max) {
-    DEBUGF("File position %ld or data size %zu is too big\n",
-      writer->fpos, size);
+    DEBUGF("File position %ld or data size %zu is too big\n", writer->fpos,
+           size);
 
     writer->error = 1;
     return 0;
@@ -108,8 +106,7 @@ static size_t writer_flex_fwrite(void const *ptr,
 
   if (end > (unsigned)fsize) {
     int newsize = (int)end;
-    if ((fsize <= (INT_MAX / 2)) &&
-        ((fsize * 2) >= newsize)) {
+    if ((fsize <= (INT_MAX / 2)) && ((fsize * 2) >= newsize)) {
       newsize = fsize * 2;
     }
     if (!resize_buffer(anchor, newsize)) {
@@ -134,7 +131,7 @@ static size_t writer_flex_fwrite(void const *ptr,
   return size;
 }
 
-static bool writer_flex_destroy(Writer * const writer)
+static bool writer_flex_destroy(Writer *const writer)
 {
   assert(writer != NULL);
   flex_ptr const anchor = writer->data;
@@ -146,15 +143,14 @@ static bool writer_flex_destroy(Writer * const writer)
     /* Truncate the buffer to the minimum required size */
     int const fsize = buffer_size(anchor);
     assert(fsize >= writer->flen);
-    if ((fsize > writer->flen) &&
-        !resize_buffer(anchor, (int)writer->flen)) {
+    if ((fsize > writer->flen) && !resize_buffer(anchor, (int)writer->flen)) {
       return false;
     }
   }
   return true;
 }
 
-void writer_flex_init(Writer * const writer, flex_ptr const anchor)
+void writer_flex_init(Writer *const writer, flex_ptr const anchor)
 {
   assert(writer != NULL);
   assert(anchor != NULL);

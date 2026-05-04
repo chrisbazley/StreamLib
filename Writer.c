@@ -30,29 +30,29 @@
 */
 
 /* ISO library header files */
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 /* Local headers */
-#include "Writer.h"
 #include "Internal/StreamMisc.h"
+#include "Writer.h"
 
-bool writer_ferror(const Writer * const writer)
+bool writer_ferror(const Writer *const writer)
 {
   assert(writer != NULL);
   return writer->error;
 }
 
-long int writer_ftell(const Writer * const writer)
+long int writer_ftell(const Writer *const writer)
 {
   assert(writer != NULL);
   return writer->fpos;
 }
 
-size_t writer_fwrite(void const * const ptr, size_t const size,
-  size_t const nmemb, Writer * const writer)
+size_t writer_fwrite(void const *const ptr, size_t const size,
+                     size_t const nmemb, Writer *const writer)
 {
   size_t nwritten = 0;
   DEBUG_VERBOSEF("Write %zu members of size %zu\n", nmemb, size);
@@ -71,8 +71,7 @@ size_t writer_fwrite(void const * const ptr, size_t const size,
         DEBUGF("File position or data size is too big\n");
         writer->error = 1;
       } else {
-        size_t const n = writer->fns.fwrite_fn(
-          ptr, bytes_to_write, writer);
+        size_t const n = writer->fns.fwrite_fn(ptr, bytes_to_write, writer);
 
         writer->fpos += n;
         if (writer->fpos > writer->flen) {
@@ -92,8 +91,8 @@ size_t writer_fwrite(void const * const ptr, size_t const size,
   return nwritten;
 }
 
-void writer_internal_init(Writer *const writer,
-  WriterFns const *const fns, void *data)
+void writer_internal_init(Writer *const writer, WriterFns const *const fns,
+                          void *data)
 {
   assert(writer != NULL);
   DEBUGF("Initializing writer %p with data %p\n", (void *)writer, data);

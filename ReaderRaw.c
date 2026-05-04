@@ -25,19 +25,19 @@
 */
 
 /* ISO library header files */
+#include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <limits.h>
 
 /* Local headers */
-#include "ReaderRaw.h"
 #include "Internal/StreamMisc.h"
+#include "ReaderRaw.h"
 
 static size_t reader_raw_fread(void *ptr, size_t const size,
-                               Reader * const reader)
+                               Reader *const reader)
 {
   assert(ptr != NULL);
   assert(reader != NULL);
@@ -74,12 +74,12 @@ static size_t reader_raw_fread(void *ptr, size_t const size,
   return nread;
 }
 
-static void reader_raw_destroy(Reader * const reader)
+static void reader_raw_destroy(Reader *const reader)
 {
   NOT_USED(reader);
 }
 
-void reader_raw_init(Reader * const reader, FILE * const in)
+void reader_raw_init(Reader *const reader, FILE *const in)
 {
   assert(reader != NULL);
   assert(in != NULL);

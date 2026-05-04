@@ -24,19 +24,19 @@
 */
 
 /* ISO library header files */
+#include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <limits.h>
 
 /* Local headers */
-#include "WriterRaw.h"
 #include "Internal/StreamMisc.h"
+#include "WriterRaw.h"
 
-static size_t writer_raw_fwrite(void const *ptr,
-  size_t const size, Writer * const writer)
+static size_t writer_raw_fwrite(void const *ptr, size_t const size,
+                                Writer *const writer)
 {
   assert(ptr != NULL);
   assert(writer != NULL);
@@ -64,7 +64,7 @@ static size_t writer_raw_fwrite(void const *ptr,
   return nwritten;
 }
 
-static bool writer_raw_destroy(Writer * const writer)
+static bool writer_raw_destroy(Writer *const writer)
 {
   assert(writer != NULL);
   FILE *const f = writer->data;
@@ -79,7 +79,7 @@ static bool writer_raw_destroy(Writer * const writer)
   return true;
 }
 
-void writer_raw_init(Writer * const writer, FILE * const out)
+void writer_raw_init(Writer *const writer, FILE *const out)
 {
   assert(writer != NULL);
   assert(out != NULL);

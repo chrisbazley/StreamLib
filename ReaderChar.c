@@ -26,17 +26,17 @@
 #include <stdio.h>
 
 /* Local headers */
-#include "Reader.h"
 #include "Internal/StreamMisc.h"
+#include "Reader.h"
 
-int reader_fgetc(Reader * const reader)
+int reader_fgetc(Reader *const reader)
 {
   unsigned char c;
   assert(reader != NULL);
   return (reader_fread(&c, sizeof(c), 1, reader) == 1) ? c : EOF;
 }
 
-int reader_ungetc(int const c, Reader * const reader)
+int reader_ungetc(int const c, Reader *const reader)
 {
   int pushed;
   assert(reader != NULL);

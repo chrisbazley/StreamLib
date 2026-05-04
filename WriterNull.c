@@ -27,24 +27,24 @@
 #include <limits.h>
 
 /* Local headers */
-#include "WriterNull.h"
 #include "Internal/StreamMisc.h"
+#include "WriterNull.h"
 
-static size_t writer_null_fwrite(void const *ptr,
-  size_t const size, Writer * const writer)
+static size_t writer_null_fwrite(void const *ptr, size_t const size,
+                                 Writer *const writer)
 {
   NOT_USED(writer);
   NOT_USED(ptr);
   return size;
 }
 
-static bool writer_null_destroy(Writer * const writer)
+static bool writer_null_destroy(Writer *const writer)
 {
   NOT_USED(writer);
   return true;
 }
 
-void writer_null_init(Writer * const writer)
+void writer_null_init(Writer *const writer)
 {
   assert(writer != NULL);
   static WriterFns const fns = {writer_null_fwrite, writer_null_destroy};

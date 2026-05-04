@@ -41,16 +41,16 @@ History:
 #define _Optional
 #endif
 
-bool writer_mem_init(Writer */*writer*/,
-  _Optional void */*buffer*/, size_t /*buffer_size*/);
-   /*
-    * creates an abstract writer object to allow data to be stored in the
-    * array pointed to by 'buffer' as if it were stored in a file.
-    * The maximum number of bytes that can be written is specified by
-    * 'buffer_size'. Functions attempting to write beyond the end of the
-    * array will return an error value and set the error indicator.
-    * Returns: true if successful, otherwise false. Can only fail because
-    *          of a lack of free memory.
-    */
+bool writer_mem_init(Writer * /*writer*/, _Optional void * /*buffer*/,
+                     size_t /*buffer_size*/);
+/*
+ * creates an abstract writer object to allow data to be stored in the
+ * array pointed to by 'buffer' as if it were stored in a file.
+ * The maximum number of bytes that can be written is specified by
+ * 'buffer_size'. Functions attempting to write beyond the end of the
+ * array will return an error value and set the error indicator.
+ * Returns: true if successful, otherwise false. Can only fail because
+ *          of a lack of free memory.
+ */
 
 #endif /* WriterMem_h */

@@ -27,8 +27,8 @@
 #include "GKeyComp.h"
 
 /* StreamLib headers */
-#include "ReaderRaw.h"
 #include "ReaderGKey.h"
+#include "ReaderRaw.h"
 #ifdef ACORN_FLEX
 #include "ReaderFlex.h"
 #endif
@@ -39,8 +39,7 @@
 
 #define TEST_STR "qwerty"
 
-enum
-{
+enum {
   NumberOfReaders = 5,
   HistoryLog2 = 9,
   FortifyAllocationLimit = 2048,
@@ -50,7 +49,7 @@ enum
   Offset = 3
 };
 
-typedef enum  {
+typedef enum {
   READERTYPE_RAW,
   READERTYPE_GKEY,
 #ifdef ACORN_FLEX
@@ -69,19 +68,22 @@ static _Optional FILE *f;
 static char file_name[L_tmpnam];
 
 static void make_file(ReaderType const rtype, const void *const data,
-  size_t size, size_t const nmemb)
+                      size_t size, size_t const nmemb)
 {
   switch (rtype) {
   case READERTYPE_RAW:
     tmpnam(file_name);
     f = fopen(file_name, "wb");
-    if (f == NULL) perror("Failed to open file");
+    if (f == NULL)
+      perror("Failed to open file");
     assert(f != NULL);
 
     /* Standard C library cannot necessarily read size=0 */
     if (size > 0) {
       size_t const n = fwrite(data, size, nmemb, &*f);
-      if (n != nmemb) { perror("Failed to write to file"); }
+      if (n != nmemb) {
+        perror("Failed to write to file");
+      }
       assert(n == nmemb);
     }
     f = freopen(file_name, "rb", &*f);
@@ -91,7 +93,8 @@ static void make_file(ReaderType const rtype, const void *const data,
   case READERTYPE_GKEY:
     tmpnam(file_name);
     f = fopen(file_name, "wb");
-    if (f == NULL) perror("Failed to open file");
+    if (f == NULL)
+      perror("Failed to open file");
     assert(f != NULL);
 
     size *= nmemb;
@@ -104,12 +107,8 @@ static void make_file(ReaderType const rtype, const void *const data,
       _Optional GKeyComp *const comp = gkeycomp_make(HistoryLog2);
       GKeyStatus stat;
       char buf[BufferSize];
-      GKeyParameters params = {
-        .in_buffer = data,
-        .in_size = size
-      };
-      do
-      {
+      GKeyParameters params = {.in_buffer = data, .in_size = size};
+      do {
         params.out_buffer = buf;
         params.out_size = sizeof(buf);
         assert(comp);
@@ -118,12 +117,12 @@ static void make_file(ReaderType const rtype, const void *const data,
         if (sizeof(buf) - params.out_size > 0) {
           assert(f);
           size_t const n = fwrite(buf, sizeof(buf) - params.out_size, 1, &*f);
-          if (n != 1) { perror("Failed to write to file"); }
+          if (n != 1) {
+            perror("Failed to write to file");
+          }
           assert(n == 1);
         }
-      }
-      while ((stat == GKeyStatus_OK) ||
-             (stat == GKeyStatus_BufferOverflow));
+      } while ((stat == GKeyStatus_OK) || (stat == GKeyStatus_BufferOverflow));
 
       assert(stat == GKeyStatus_Finished);
 
@@ -163,7 +162,8 @@ static void make_file(ReaderType const rtype, const void *const data,
   }
 }
 
-static void make_file_from_string(ReaderType const rtype, const char *const data)
+static void make_file_from_string(ReaderType const rtype,
+                                  const char *const data)
 {
   make_file(rtype, data, strlen(data), 1);
 }
@@ -255,8 +255,7 @@ static void test1(ReaderType const rtype)
 
   make_file_from_string(rtype, "x");
 
-  for (size_t i = 0; i < ARRAY_SIZE(r); i++)
-  {
+  for (size_t i = 0; i < ARRAY_SIZE(r); i++) {
     init_reader(rtype, &r[i]);
 
     assert(!reader_feof(&r[i]));
@@ -303,8 +302,7 @@ static void test3(ReaderType const rtype)
 
   make_file_from_string(rtype, "xy");
 
-  for (limit = 0; limit < FortifyAllocationLimit; ++limit)
-  {
+  for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
     Reader r;
     init_reader(rtype, &r);
 
@@ -489,7 +487,7 @@ static void test8(ReaderType const rtype)
 
   for (size_t i = 0; i < ARRAY_SIZE(expected); ++i) {
     assert(reader_fread(buf, sizeof(buf[0]), 1, &r) == 1);
-    assert(reader_ftell(&r) == (long)sizeof(buf[0]) * ((long)i+1l));
+    assert(reader_ftell(&r) == (long)sizeof(buf[0]) * ((long)i + 1l));
     assert(!reader_feof(&r));
     assert(!reader_ferror(&r));
 
@@ -528,7 +526,8 @@ static void test9(ReaderType const rtype)
     buf[n] = Marker;
   }
 
-  assert(reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(expected), &r) == ARRAY_SIZE(expected));
+  assert(reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(expected), &r) ==
+         ARRAY_SIZE(expected));
   assert(reader_ftell(&r) == ARRAY_SIZE(expected) * sizeof(buf[0]));
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
@@ -627,7 +626,8 @@ static void test12(ReaderType const rtype)
     buf[n] = Marker;
   }
 
-  assert(reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(buf), &r) == ARRAY_SIZE(expected));
+  assert(reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(buf), &r) ==
+         ARRAY_SIZE(expected));
   assert(reader_ftell(&r) == ARRAY_SIZE(expected) * sizeof(buf[0]));
   assert(reader_feof(&r));
   assert(!reader_ferror(&r));
@@ -656,7 +656,8 @@ static void test13(ReaderType const rtype)
     buf[n] = Marker;
   }
 
-  assert(reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(buf), &r) == ARRAY_SIZE(expected) - 1);
+  assert(reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(buf), &r) ==
+         ARRAY_SIZE(expected) - 1);
   assert(reader_ftell(&r) == sizeof(expected) - 1);
   assert(reader_feof(&r));
   assert(!reader_ferror(&r));
@@ -689,8 +690,8 @@ static void test14(ReaderType const rtype)
     init_reader(rtype, &r);
 
     Fortify_SetNumAllocationsLimit(limit);
-    size_t const n = reader_fread(buf, sizeof(buf[0]),
-      ARRAY_SIZE(expected), &r);
+    size_t const n =
+      reader_fread(buf, sizeof(buf[0]), ARRAY_SIZE(expected), &r);
 
     Fortify_SetNumAllocationsLimit(ULONG_MAX);
 
@@ -727,12 +728,7 @@ static void test15(ReaderType const rtype)
 {
   /* Read ui16 */
   Reader r;
-  static const uint16_t e[] = {
-    UINT16_MAX,
-    UINT16_MAX - 1,
-    0,
-    1,
-    0x1536 };
+  static const uint16_t e[] = {UINT16_MAX, UINT16_MAX - 1, 0, 1, 0x1536};
 
   unsigned char expected[sizeof(e)];
   size_t j = 0;
@@ -781,14 +777,7 @@ static void test16(ReaderType const rtype)
   /* Read i32 */
   Reader r;
   static const int32_t e[] = {
-    INT32_MAX,
-    INT32_MIN,
-    INT32_MAX - 1,
-    INT32_MIN + 1,
-    0,
-    1,
-    -1,
-    0x7cf41536 };
+    INT32_MAX, INT32_MIN, INT32_MAX - 1, INT32_MIN + 1, 0, 1, -1, 0x7cf41536};
 
   unsigned char expected[sizeof(e)];
   size_t j = 0;
@@ -810,7 +799,7 @@ static void test16(ReaderType const rtype)
   for (size_t x = 0; x < ARRAY_SIZE(e); ++x) {
     assert(reader_fread_int32(buf, &r));
 
-    assert(reader_ftell(&r) == ((long)x+1l) * (long)sizeof(e[0]));
+    assert(reader_ftell(&r) == ((long)x + 1l) * (long)sizeof(e[0]));
     assert(!reader_feof(&r));
     assert(!reader_ferror(&r));
 
@@ -1003,8 +992,8 @@ static void test23(ReaderType const rtype)
 
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR)*2l, SEEK_CUR));
-  assert(reader_ftell(&r) == (strlen(TEST_STR)*2l) + 1l);
+  assert(!reader_fseek(&r, strlen(TEST_STR) * 2l, SEEK_CUR));
+  assert(reader_ftell(&r) == (strlen(TEST_STR) * 2l) + 1l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
   assert(reader_fgetc(&r) == EOF);
@@ -1020,8 +1009,8 @@ static void test23(ReaderType const rtype)
     rewind_file(rtype);
     assert(f);
     assert(fgetc(&*f) == TEST_STR[0]);
-    assert(!fseek(&*f, strlen(TEST_STR)*2l, SEEK_CUR));
-    assert(ftell(&*f) == (strlen(TEST_STR)*2l) + 1l);
+    assert(!fseek(&*f, strlen(TEST_STR) * 2l, SEEK_CUR));
+    assert(ftell(&*f) == (strlen(TEST_STR) * 2l) + 1l);
     assert(!feof(&*f));
     assert(!ferror(&*f));
     assert(fgetc(&*f) == EOF);
@@ -1079,12 +1068,12 @@ static void test25(ReaderType const rtype)
 
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR)-1l, SEEK_SET));
-  assert(reader_ftell(&r) == strlen(TEST_STR)-1l);
+  assert(!reader_fseek(&r, strlen(TEST_STR) - 1l, SEEK_SET));
+  assert(reader_ftell(&r) == strlen(TEST_STR) - 1l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
 
-  assert(reader_fgetc(&r) == TEST_STR[strlen(TEST_STR)-1]);
+  assert(reader_fgetc(&r) == TEST_STR[strlen(TEST_STR) - 1]);
 
   reader_destroy(&r);
 
@@ -1104,8 +1093,8 @@ static void test26(ReaderType const rtype)
 
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR)*2l, SEEK_SET));
-  assert(reader_ftell(&r) == strlen(TEST_STR)*2l);
+  assert(!reader_fseek(&r, strlen(TEST_STR) * 2l, SEEK_SET));
+  assert(reader_ftell(&r) == strlen(TEST_STR) * 2l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
   assert(reader_fgetc(&r) == EOF);
@@ -1121,8 +1110,8 @@ static void test26(ReaderType const rtype)
     rewind_file(rtype);
     assert(f);
     assert(fgetc(&*f) == TEST_STR[0]);
-    assert(!fseek(&*f, strlen(TEST_STR)*2l, SEEK_SET));
-    assert(ftell(&*f) == strlen(TEST_STR)*2l);
+    assert(!fseek(&*f, strlen(TEST_STR) * 2l, SEEK_SET));
+    assert(ftell(&*f) == strlen(TEST_STR) * 2l);
     assert(!feof(&*f));
     assert(!ferror(&*f));
     assert(fgetc(&*f) == EOF);
@@ -1163,8 +1152,7 @@ static void test28(ReaderType const rtype)
   unsigned long limit;
   make_file_from_string(rtype, TEST_STR);
 
-  for (limit = 0; limit < FortifyAllocationLimit; ++limit)
-  {
+  for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
     Reader r;
     init_reader(rtype, &r);
 
@@ -1181,7 +1169,7 @@ static void test28(ReaderType const rtype)
     } else {
       assert(c == TEST_STR[Offset]);
       assert(!reader_ferror(&r));
-      assert(reader_ftell(&r) == Offset+1);
+      assert(reader_ftell(&r) == Offset + 1);
     }
 
     reader_destroy(&r);
@@ -1202,14 +1190,13 @@ static void test29(ReaderType const rtype)
   unsigned long limit;
   make_file_from_string(rtype, TEST_STR);
 
-  for (limit = 0; limit < FortifyAllocationLimit; ++limit)
-  {
+  for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
     Reader r;
     init_reader(rtype, &r);
 
     long int pos;
     int c;
-    for (pos = 0; pos < (long int)sizeof(TEST_STR)/2; ++pos) {
+    for (pos = 0; pos < (long int)sizeof(TEST_STR) / 2; ++pos) {
       c = reader_fgetc(&r);
       assert(c == TEST_STR[pos]);
     }
@@ -1325,57 +1312,49 @@ static const char *rtype_to_string(ReaderType const rtype)
 
 void Reader_tests(void)
 {
-  static const struct
-  {
+  static const struct {
     const char *test_name;
     void (*test_func)(ReaderType const rtype);
-  }
-  unit_tests[] =
-  {
-    { "Init/term", test1 },
-    { "Get char", test2 },
-    { "Get char fail recovery", test3 },
-    { "Unget char", test4 },
-    { "Unget EOF", test5 },
-    { "Unget char clears EOF", test6 },
-    { "Unget two chars", test7 },
-    { "Read one", test8 },
-    { "Read multiple", test9 },
-    { "Read zero", test10 },
-    { "Read zero size", test11 },
-    { "Read past EOF", test12 },
-    { "Read partial", test13 },
-    { "Read fail recovery", test14 },
-    { "Read ui16", test15 },
-    { "Read i32", test16 },
-    { "Unget at start", test17 },
-    { "Seek forward from current", test18 },
-    { "Seek current", test19 },
-    { "Seek back from current", test20 },
-    { "Seek forward from current after unget", test21 },
-    { "Seek beyond start from current", test22 },
-    { "Seek beyond end from current", test23 },
-    { "Seek back from start", test24 },
-    { "Seek forward from start", test25 },
-    { "Seek beyond end from start", test26 },
-    { "Seek from end", test27 },
-    { "Read after seek forward fail recovery", test28 },
-    { "Read after seek back fail recovery", test29 },
-    { "Seek forward far from current", test30 },
-    { "Seek back far from current", test31 },
+  } unit_tests[] = {
+    {"Init/term", test1},
+    {"Get char", test2},
+    {"Get char fail recovery", test3},
+    {"Unget char", test4},
+    {"Unget EOF", test5},
+    {"Unget char clears EOF", test6},
+    {"Unget two chars", test7},
+    {"Read one", test8},
+    {"Read multiple", test9},
+    {"Read zero", test10},
+    {"Read zero size", test11},
+    {"Read past EOF", test12},
+    {"Read partial", test13},
+    {"Read fail recovery", test14},
+    {"Read ui16", test15},
+    {"Read i32", test16},
+    {"Unget at start", test17},
+    {"Seek forward from current", test18},
+    {"Seek current", test19},
+    {"Seek back from current", test20},
+    {"Seek forward from current after unget", test21},
+    {"Seek beyond start from current", test22},
+    {"Seek beyond end from current", test23},
+    {"Seek back from start", test24},
+    {"Seek forward from start", test25},
+    {"Seek beyond end from start", test26},
+    {"Seek from end", test27},
+    {"Read after seek forward fail recovery", test28},
+    {"Read after seek back fail recovery", test29},
+    {"Seek forward far from current", test30},
+    {"Seek back far from current", test31},
   };
 
-  for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count ++)
-  {
-    for (ReaderType rtype = READERTYPE_RAW;
-         rtype < READERTYPE_COUNT;
+  for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count++) {
+    for (ReaderType rtype = READERTYPE_RAW; rtype < READERTYPE_COUNT;
          rtype = (ReaderType)(rtype + 1)) {
 
-      printf("Test %zu/%zu : %s (%s)\n",
-             1 + count,
-             ARRAY_SIZE(unit_tests),
-             unit_tests[count].test_name,
-             rtype_to_string(rtype));
+      printf("Test %zu/%zu : %s (%s)\n", 1 + count, ARRAY_SIZE(unit_tests),
+             unit_tests[count].test_name, rtype_to_string(rtype));
 
       Fortify_EnterScope();
 

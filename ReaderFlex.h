@@ -36,15 +36,15 @@ History:
 /* Local header files */
 #include "Reader.h"
 
-void reader_flex_init(Reader */*reader*/, flex_ptr /*anchor*/);
-   /*
-    * creates an abstract reader object to allow a data store allocated by
-    * Acorn's flex library to be read like the contents of a file. The
-    * caller need not pass the number of bytes allocated because it is
-    * queried from the flex library instead. Functions attempting to read
-    * beyond the end of the allocated store will return an error value and
-    * set the end-of-file indicator. Movement of the flex store is
-    * automatically disabled while it is being accessed.
-    */
+void reader_flex_init(Reader * /*reader*/, flex_ptr /*anchor*/);
+/*
+ * creates an abstract reader object to allow a data store allocated by
+ * Acorn's flex library to be read like the contents of a file. The
+ * caller need not pass the number of bytes allocated because it is
+ * queried from the flex library instead. Functions attempting to read
+ * beyond the end of the allocated store will return an error value and
+ * set the end-of-file indicator. Movement of the flex store is
+ * automatically disabled while it is being accessed.
+ */
 
 #endif /* ReaderFlex_h */

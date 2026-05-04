@@ -36,14 +36,14 @@ History:
 /* Local header files */
 #include "Writer.h"
 
-void writer_flex_init(Writer */*writer*/, flex_ptr /*anchor*/);
-   /*
-    * creates an abstract writer object to allow data to be stored in a
-    * buffer allocated by Acorn's flex library, as if it were stored in a
-    * file. Passing in an 'anchor' allows the writer object to grow the
-    * buffer as necessary (by calling flex_extend) without taking ownership
-    * of it. The caller need not pass the number of bytes allocated because
-    * it is queried from the flex library instead.
-    */
+void writer_flex_init(Writer * /*writer*/, flex_ptr /*anchor*/);
+/*
+ * creates an abstract writer object to allow data to be stored in a
+ * buffer allocated by Acorn's flex library, as if it were stored in a
+ * file. Passing in an 'anchor' allows the writer object to grow the
+ * buffer as necessary (by calling flex_extend) without taking ownership
+ * of it. The caller need not pass the number of bytes allocated because
+ * it is queried from the flex library instead.
+ */
 
 #endif /* WriterFlex_h */

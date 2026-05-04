@@ -43,28 +43,28 @@
 */
 
 /* ISO library header files */
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 /* Local headers */
-#include "Reader.h"
 #include "Internal/StreamMisc.h"
+#include "Reader.h"
 
-bool reader_feof(const Reader * const reader)
+bool reader_feof(const Reader *const reader)
 {
   assert(reader != NULL);
   return reader->eof;
 }
 
-bool reader_ferror(const Reader * const reader)
+bool reader_ferror(const Reader *const reader)
 {
   assert(reader != NULL);
   return reader->error;
 }
 
-long int reader_ftell(const Reader * const reader)
+long int reader_ftell(const Reader *const reader)
 {
   assert(reader != NULL);
   long int pos = reader->fpos;
@@ -77,7 +77,7 @@ long int reader_ftell(const Reader * const reader)
 }
 
 size_t reader_fread(void *ptr, size_t const size, size_t const nmemb,
-  Reader * const reader)
+                    Reader *const reader)
 {
   size_t nread = 0;
   DEBUG_VERBOSEF("Read %zu members of size %zu\n", nmemb, size);
@@ -111,8 +111,7 @@ size_t reader_fread(void *ptr, size_t const size, size_t const nmemb,
           DEBUGF("File position or data size is too big\n");
           reader->error = 1;
         } else {
-          size_t const n = reader->fns.fread_fn(
-            ptr, bytes_to_read, reader);
+          size_t const n = reader->fns.fread_fn(ptr, bytes_to_read, reader);
 
           nbytes += n;
           reader->fpos += n;
@@ -131,8 +130,8 @@ size_t reader_fread(void *ptr, size_t const size, size_t const nmemb,
   return nread;
 }
 
-void reader_internal_init(Reader *const reader,
-  ReaderFns const *const fns, void *const data)
+void reader_internal_init(Reader *const reader, ReaderFns const *const fns,
+                          void *const data)
 {
   assert(reader != NULL);
   assert(fns != NULL);
@@ -148,7 +147,7 @@ void reader_internal_init(Reader *const reader,
   };
 }
 
-void reader_destroy(Reader * const reader)
+void reader_destroy(Reader *const reader)
 {
   assert(reader != NULL);
   reader->fns.term_fn(reader);

@@ -18,8 +18,8 @@
  */
 
 /* ISO library headers */
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Local headers */
@@ -27,17 +27,14 @@
 
 int main(int argc, char *argv[])
 {
-  static const struct
-  {
+  static const struct {
     const char *test_name;
     void (*test_func)(void);
-  }
-  test_groups[] =
-  {
-    { "Reader", Reader_tests },
-    { "ReaderNull", ReaderNull_tests },
-    { "Writer", Writer_tests },
-    { "WriterGKC", WriterGKC_tests },
+  } test_groups[] = {
+    {"Reader", Reader_tests},
+    {"ReaderNull", ReaderNull_tests},
+    {"Writer", Writer_tests},
+    {"WriterGKC", WriterGKC_tests},
   };
 
   NOT_USED(argc);
@@ -48,13 +45,12 @@ int main(int argc, char *argv[])
   flex_init("StreamLib", NULL, 0);
 #endif
 
-  for (size_t count = 0; count < ARRAY_SIZE(test_groups); count ++)
-  {
+  for (size_t count = 0; count < ARRAY_SIZE(test_groups); count++) {
     /* Print title of this group of tests, then underline it */
     const size_t len = strlen(test_groups[count].test_name);
     puts(test_groups[count].test_name);
     for (size_t i = 0; i < len; i++)
-        putchar('-');
+      putchar('-');
     putchar('\n');
 
     /* Call a function to perform the group of tests */

@@ -34,7 +34,6 @@ History:
 /* ISO library header files */
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdbool.h>
 
 /* Local header files */
 #include "Writer.h"
@@ -43,19 +42,19 @@ History:
 #define _Optional
 #endif
 
-bool writer_heap_init(Writer */*writer*/,
-  _Optional void **/*buffer*/, size_t /*buffer_size*/);
-   /*
-    * creates an abstract writer object to allow data to be stored in an
-    * buffer for which space was allocated by calling malloc, as if the
-    * data were stored in a file. 'buffer' points to a location in which the
-    * address of the buffer (or null) is stored. This allows the writer to
-    * grow the buffer as necessary (by calling realloc) without taking
-    * ownership of it. The initial size of the buffer (in bytes) is
-    * specified by 'buffer_size'; its final size is returned by
-    * writer_destroy.
-    * Returns: true if successful, otherwise false. Can only fail because
-    *          of a lack of free memory.
-    */
+bool writer_heap_init(Writer * /*writer*/, _Optional void ** /*buffer*/,
+                      size_t /*buffer_size*/);
+/*
+ * creates an abstract writer object to allow data to be stored in an
+ * buffer for which space was allocated by calling malloc, as if the
+ * data were stored in a file. 'buffer' points to a location in which the
+ * address of the buffer (or null) is stored. This allows the writer to
+ * grow the buffer as necessary (by calling realloc) without taking
+ * ownership of it. The initial size of the buffer (in bytes) is
+ * specified by 'buffer_size'; its final size is returned by
+ * writer_destroy.
+ * Returns: true if successful, otherwise false. Can only fail because
+ *          of a lack of free memory.
+ */
 
 #endif /* WriterHeap_h */

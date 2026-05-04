@@ -24,15 +24,15 @@
 */
 
 /* ISO library header files */
-#include <stdint.h>
-#include <stdbool.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /* Local headers */
-#include "Reader.h"
 #include "Internal/StreamMisc.h"
+#include "Reader.h"
 
-bool reader_fread_uint32(uint32_t * const ptr, Reader * const reader)
+bool reader_fread_uint32(uint32_t *const ptr, Reader *const reader)
 {
   assert(ptr != NULL);
 
@@ -41,13 +41,13 @@ bool reader_fread_uint32(uint32_t * const ptr, Reader * const reader)
     return false;
   }
 
-  *ptr = bytes[0] | ((uint32_t)bytes[1] << 8) |
-         ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[3] << 24);
+  *ptr = bytes[0] | ((uint32_t)bytes[1] << 8) | ((uint32_t)bytes[2] << 16) |
+         ((uint32_t)bytes[3] << 24);
 
   return true;
 }
 
-bool reader_fread_int32(int32_t * const ptr, Reader * const reader)
+bool reader_fread_int32(int32_t *const ptr, Reader *const reader)
 {
   uint32_t val;
   if (!reader_fread_uint32(&val, reader)) {

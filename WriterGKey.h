@@ -34,44 +34,40 @@ History:
 #define WriterGKey_h
 
 /* ISO library header files */
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 /* Local header files */
 #include "Writer.h"
 
-bool writer_gkey_init_from(Writer */*writer*/,
-                           unsigned int /*history_log_2*/,
-                           long int /*min_size*/,
-                           Writer */*out*/);
-   /*
-    * creates an abstract writer object to allow data to be encoded in
-    * Gordon Key's compressed format before being written to the writer
-    * object pointed to by 'out'. The 'history_log_2' parameter is the
-    * number of bytes to look behind, in base 2 logarithmic form, and must
-    * be the same as that used to decompress the data.
-    * 'min_size' is the minimum size of the input data, in bytes. If the
-    * number of bytes written later exceeds 'min_size' then the value stored
-    * in the output data is overwritten when the writer is destroyed. This
-    * operation may fail if seeking backwards is not supported. If the
-    * number of bytes written is less than 'min_size' then trailing zeros
-    * are instead appended to pad the input to the requested size.
-    * Returns: true if successful, otherwise false. Can only fail because of
-    *          lack of free memory.
-    */
+bool writer_gkey_init_from(Writer * /*writer*/, unsigned int /*history_log_2*/,
+                           long int /*min_size*/, Writer * /*out*/);
+/*
+ * creates an abstract writer object to allow data to be encoded in
+ * Gordon Key's compressed format before being written to the writer
+ * object pointed to by 'out'. The 'history_log_2' parameter is the
+ * number of bytes to look behind, in base 2 logarithmic form, and must
+ * be the same as that used to decompress the data.
+ * 'min_size' is the minimum size of the input data, in bytes. If the
+ * number of bytes written later exceeds 'min_size' then the value stored
+ * in the output data is overwritten when the writer is destroyed. This
+ * operation may fail if seeking backwards is not supported. If the
+ * number of bytes written is less than 'min_size' then trailing zeros
+ * are instead appended to pad the input to the requested size.
+ * Returns: true if successful, otherwise false. Can only fail because of
+ *          lack of free memory.
+ */
 
-bool writer_gkey_init(Writer */*writer*/,
-                      unsigned int /*history_log_2*/,
-                      long int /*min_size*/,
-                      FILE */*out*/);
-   /*
-    * creates an abstract writer object to allow data to be encoded in
-    * Gordon Key's compressed format before being written to a file pointed
-    * to by 'out'. This function is similar to writer_gkey_init_from except
-    * that it implicitly creates a writer object to allow the file to be
-    * written. (The second writer is implicitly destroyed with its parent.)
-    * Returns: true if successful, otherwise false. Can only fail because of
-    *          lack of free memory.
-    */
+bool writer_gkey_init(Writer * /*writer*/, unsigned int /*history_log_2*/,
+                      long int /*min_size*/, FILE * /*out*/);
+/*
+ * creates an abstract writer object to allow data to be encoded in
+ * Gordon Key's compressed format before being written to a file pointed
+ * to by 'out'. This function is similar to writer_gkey_init_from except
+ * that it implicitly creates a writer object to allow the file to be
+ * written. (The second writer is implicitly destroyed with its parent.)
+ * Returns: true if successful, otherwise false. Can only fail because of
+ *          lack of free memory.
+ */
 
 #endif /* WriterGKey_h */

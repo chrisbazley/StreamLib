@@ -25,21 +25,21 @@
 */
 
 /* ISO library header files */
+#include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <limits.h>
 
 /* Local headers */
-#include "WriterMem.h"
 #include "Internal/StreamMisc.h"
+#include "WriterMem.h"
 
 typedef struct {
   _Optional char *buffer;
   size_t buffer_size;
 } WriterMemData;
 
-static void zero_extend(Writer * const writer, size_t const new_len)
+static void zero_extend(Writer *const writer, size_t const new_len)
 {
   assert(writer != NULL);
   WriterMemData *const data = writer->data;
@@ -47,16 +47,15 @@ static void zero_extend(Writer * const writer, size_t const new_len)
 
   assert(new_len >= (unsigned long)writer->flen);
   size_t const bytes_to_skip = new_len - (size_t)writer->flen;
-  DEBUGF("Zeroing %zu bytes at offset %ld\n",
-    bytes_to_skip, writer->flen);
+  DEBUGF("Zeroing %zu bytes at offset %ld\n", bytes_to_skip, writer->flen);
 
   if (bytes_to_skip > 0 && data->buffer) {
     memset(&*data->buffer + writer->flen, 0, bytes_to_skip);
   }
 }
 
-static size_t writer_mem_fwrite(void const *ptr,
-  size_t const size, Writer * const writer)
+static size_t writer_mem_fwrite(void const *ptr, size_t const size,
+                                Writer *const writer)
 {
   assert(ptr != NULL);
   assert(writer != NULL);
@@ -94,15 +93,15 @@ static size_t writer_mem_fwrite(void const *ptr,
   return nwrite;
 }
 
-static bool writer_mem_destroy(Writer * const writer)
+static bool writer_mem_destroy(Writer *const writer)
 {
   assert(writer != NULL);
   free(writer->data);
   return true;
 }
 
-bool writer_mem_init(Writer * const writer, _Optional void * const buffer,
-  size_t const buffer_size)
+bool writer_mem_init(Writer *const writer, _Optional void *const buffer,
+                     size_t const buffer_size)
 {
   assert(writer != NULL);
   assert(buffer_size == 0 || buffer != NULL);

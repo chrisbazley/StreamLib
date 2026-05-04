@@ -32,8 +32,7 @@
 #define PATH "<Wimp$ScrapDir>.ReaderTest"
 #define TEST_STR "qwerty"
 
-enum
-{
+enum {
   NumberOfReaders = 5,
   NumReads = 7,
   Marker = 56,
@@ -44,8 +43,7 @@ static void test1(void)
   /* Init/term */
   Reader r[NumberOfReaders];
 
-  for (size_t i = 0; i < ARRAY_SIZE(r); i++)
-  {
+  for (size_t i = 0; i < ARRAY_SIZE(r); i++) {
     reader_null_init(&r[i]);
 
     assert(!reader_feof(&r[i]));
@@ -380,8 +378,8 @@ static void test25(void)
   Reader r;
   reader_null_init(&r);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR)-1l, SEEK_SET));
-  assert(reader_ftell(&r) == strlen(TEST_STR)-1l);
+  assert(!reader_fseek(&r, strlen(TEST_STR) - 1l, SEEK_SET));
+  assert(reader_ftell(&r) == strlen(TEST_STR) - 1l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
 
@@ -408,38 +406,32 @@ static void test27(void)
 
 void ReaderNull_tests(void)
 {
-  static const struct
-  {
+  static const struct {
     const char *test_name;
     void (*test_func)(void);
-  }
-  unit_tests[] =
-  {
-    { "Init/term", test1 },
-    { "Get char", test2 },
-    { "Unget EOF", test5 },
-    { "Unget two chars", test7 },
-    { "Read one", test8 },
-    { "Read multiple", test9 },
-    { "Read zero", test10 },
-    { "Read zero size", test11 },
-    { "Read ui16", test15 },
-    { "Read i32", test16 },
-    { "Unget at start", test17 },
-    { "Seek forward from current", test18 },
-    { "Seek current", test19 },
-    { "Seek forward from current after unget", test21 },
-    { "Seek beyond start from current", test22 },
-    { "Seek back from start", test24 },
-    { "Seek forward from start", test25 },
-    { "Seek from end", test27 },
+  } unit_tests[] = {
+    {"Init/term", test1},
+    {"Get char", test2},
+    {"Unget EOF", test5},
+    {"Unget two chars", test7},
+    {"Read one", test8},
+    {"Read multiple", test9},
+    {"Read zero", test10},
+    {"Read zero size", test11},
+    {"Read ui16", test15},
+    {"Read i32", test16},
+    {"Unget at start", test17},
+    {"Seek forward from current", test18},
+    {"Seek current", test19},
+    {"Seek forward from current after unget", test21},
+    {"Seek beyond start from current", test22},
+    {"Seek back from start", test24},
+    {"Seek forward from start", test25},
+    {"Seek from end", test27},
   };
 
-  for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count ++)
-  {
-    printf("Test %zu/%zu : %s\n",
-           1 + count,
-           ARRAY_SIZE(unit_tests),
+  for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count++) {
+    printf("Test %zu/%zu : %s\n", 1 + count, ARRAY_SIZE(unit_tests),
            unit_tests[count].test_name);
 
     Fortify_EnterScope();

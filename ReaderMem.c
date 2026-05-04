@@ -26,13 +26,13 @@
 
 /* ISO library header files */
 #include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 /* Local headers */
-#include "ReaderMem.h"
 #include "Internal/StreamMisc.h"
+#include "ReaderMem.h"
 
 typedef struct {
   const char *buffer;
@@ -40,7 +40,7 @@ typedef struct {
 } ReaderMemData;
 
 static size_t reader_mem_fread(void *ptr, size_t const size,
-                               Reader * const reader)
+                               Reader *const reader)
 {
   assert(ptr != NULL);
   assert(reader != NULL);
@@ -74,14 +74,14 @@ static size_t reader_mem_fread(void *ptr, size_t const size,
   return nread;
 }
 
-static void reader_mem_destroy(Reader * const reader)
+static void reader_mem_destroy(Reader *const reader)
 {
   assert(reader != NULL);
   free(reader->data);
 }
 
 bool reader_mem_init(Reader *const reader, const void *const buffer,
-  size_t const buffer_size)
+                     size_t const buffer_size)
 {
   assert(reader != NULL);
   assert(buffer_size == 0 || buffer != NULL);

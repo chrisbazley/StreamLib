@@ -18,24 +18,24 @@
  */
 
 /* ISO library headers */
+#include <inttypes.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 /* GKeyLib headers */
 #include "GKeyDecomp.h"
 
 /* StreamLib headers */
-#include "WriterRaw.h"
-#include "WriterGKey.h"
 #include "WriterGKC.h"
+#include "WriterGKey.h"
+#include "WriterRaw.h"
 #ifdef ACORN_FLEX
 #include "WriterFlex.h"
 #endif
-#include "WriterMem.h"
 #include "WriterHeap.h"
+#include "WriterMem.h"
 #include "WriterNull.h"
 
 /* Local headers */
@@ -44,8 +44,7 @@
 #define TEST_STR "qwerty"
 #define TEST_STR_LEN (sizeof(TEST_STR) - 1u)
 
-enum
-{
+enum {
   NumberOfWriters = 5,
   HistoryLog2 = 9,
   FortifyAllocationLimit = 2048,
@@ -56,7 +55,7 @@ enum
   TailLen = 1,
 };
 
-typedef enum  {
+typedef enum {
   WRITERTYPE_RAW,
   WRITERTYPE_GKEY,
   WRITERTYPE_GKC,
@@ -87,7 +86,9 @@ static void close_file(WriterType const wtype, int const handle)
   case WRITERTYPE_RAW:
   case WRITERTYPE_GKEY:
     assert(fh);
-    if (fclose(&*fh)) { perror("fclose failed"); }
+    if (fclose(&*fh)) {
+      perror("fclose failed");
+    }
     f[handle] = NULL;
     break;
 
@@ -254,70 +255,66 @@ static bool can_seek_back(WriterType const wtype)
   return seek_back;
 }
 
-static void read_file(WriterType const wtype, void *const data,
-  size_t size, size_t const nmemb, int const handle)
+static void read_file(WriterType const wtype, void *const data, size_t size,
+                      size_t const nmemb, int const handle)
 {
-  printf("Test reads %zu items of size %zu from handle %d\n",
-         nmemb, size, handle);
+  printf("Test reads %zu items of size %zu from handle %d\n", nmemb, size,
+         handle);
 
   switch (wtype) {
-  case WRITERTYPE_RAW:
-    {
-      FILE *const f = fopen(file_names[handle], "rb");
-      if (f == NULL) perror("Failed to open file");
-      assert(f != NULL);
+  case WRITERTYPE_RAW: {
+    FILE *const f = fopen(file_names[handle], "rb");
+    if (f == NULL)
+      perror("Failed to open file");
+    assert(f != NULL);
 
-      if (size > 0) {
-        size_t const n = fread(data, size, nmemb, f);
-        printf("Read %zu of %zu\n", n, nmemb);
-        if (n != nmemb) { perror("Failed to read from file"); }
-        assert(n == nmemb);
+    if (size > 0) {
+      size_t const n = fread(data, size, nmemb, f);
+      printf("Read %zu of %zu\n", n, nmemb);
+      if (n != nmemb) {
+        perror("Failed to read from file");
       }
-      assert(!fclose(f));
+      assert(n == nmemb);
     }
-    break;
+    assert(!fclose(f));
+  } break;
 
-  case WRITERTYPE_GKEY:
-    {
-      FILE *const f = fopen(file_names[handle], "rb");
-      if (f == NULL) perror("Failed to open file");
-      assert(f != NULL);
+  case WRITERTYPE_GKEY: {
+    FILE *const f = fopen(file_names[handle], "rb");
+    if (f == NULL)
+      perror("Failed to open file");
+    assert(f != NULL);
 
-      size *= nmemb;
+    size *= nmemb;
 
-      uint32_t decomp_size = 0;
-      for (size_t n = 0; n < 4; ++n) {
-        int const c = fgetc(f);
-        assert(c >= 0);
-        decomp_size |= (uint32_t)c << (CHAR_BIT * n);
+    uint32_t decomp_size = 0;
+    for (size_t n = 0; n < 4; ++n) {
+      int const c = fgetc(f);
+      assert(c >= 0);
+      decomp_size |= (uint32_t)c << (CHAR_BIT * n);
+    }
+    assert(size == decomp_size);
+    _Optional GKeyDecomp *const decomp = gkeydecomp_make(HistoryLog2);
+    GKeyStatus stat = GKeyStatus_OK;
+    GKeyParameters params = {.out_buffer = data, .out_size = size};
+    do {
+      char buf[BufferSize];
+      size_t const n = fread(buf, 1, sizeof(buf), f);
+      printf("Read %zu of %zu\n", n, sizeof(buf));
+      if (!n) {
+        assert(feof(f));
+        break;
       }
-      assert(size == decomp_size);
-      _Optional GKeyDecomp *const decomp = gkeydecomp_make(HistoryLog2);
-      GKeyStatus stat = GKeyStatus_OK;
-      GKeyParameters params = {
-        .out_buffer = data,
-        .out_size = size
-      };
-      do {
-        char buf[BufferSize];
-        size_t const n = fread(buf, 1, sizeof(buf), f);
-        printf("Read %zu of %zu\n", n, sizeof(buf));
-        if (!n) {
-          assert(feof(f));
-          break;
-        }
-        params.in_buffer = buf;
-        params.in_size = n;
-        stat = gkeydecomp_decompress(&*decomp, &params);
-      } while (stat == GKeyStatus_OK ||
-               stat == GKeyStatus_TruncatedInput);
+      params.in_buffer = buf;
+      params.in_size = n;
+      stat = gkeydecomp_decompress(&*decomp, &params);
+    } while (stat == GKeyStatus_OK || stat == GKeyStatus_TruncatedInput);
 
-      assert(stat == GKeyStatus_OK);
-      assert(params.out_size == 0);
-      gkeydecomp_destroy(decomp);
-      assert(!fclose(f));
-    }
-    break;
+    assert(stat == GKeyStatus_OK);
+    assert(params.out_size == 0);
+    gkeydecomp_destroy(decomp);
+    assert(!fclose(f));
+  } break;
 
 #ifdef ACORN_FLEX
   case WRITERTYPE_FLEX:
@@ -411,7 +408,7 @@ static int open_file(WriterType const wtype, size_t const min_size)
 }
 
 static bool init_writer(WriterType const wtype, Writer *const w,
-  size_t min_size, int const handle)
+                        size_t min_size, int const handle)
 {
   bool success = true;
   assert(handle >= 0);
@@ -428,8 +425,8 @@ static bool init_writer(WriterType const wtype, Writer *const w,
     break;
 
   case WRITERTYPE_GKEY:
-  assert(fh);
-  success = writer_gkey_init(w, HistoryLog2, min_size, &*fh);
+    assert(fh);
+    success = writer_gkey_init(w, HistoryLog2, min_size, &*fh);
     break;
 
   case WRITERTYPE_GKC:
@@ -465,7 +462,7 @@ static bool init_writer(WriterType const wtype, Writer *const w,
 }
 
 static int open_file_and_init_writer(WriterType const wtype, Writer *const w,
-  size_t const min_size)
+                                     size_t const min_size)
 {
   int const handle = open_file(wtype, min_size);
   assert(init_writer(wtype, w, min_size, handle));
@@ -473,7 +470,7 @@ static int open_file_and_init_writer(WriterType const wtype, Writer *const w,
 }
 
 static void destroy_and_check(WriterType const wtype, Writer *const w,
-  long int const expected_len)
+                              long int const expected_len)
 {
   if (writer_ferror(w)) {
     assert(writer_destroy(w) == -1l);
@@ -484,8 +481,7 @@ static void destroy_and_check(WriterType const wtype, Writer *const w,
       long int const worst_bits = expected_len * (CHAR_BIT + 1);
       long int const min = sizeof(int32_t);
       long int const max = min + (worst_bits + CHAR_BIT - 1) / CHAR_BIT;
-      printf("out_size %ld should be in range [%ld,%ld]\n", out_size,
-        min, max);
+      printf("out_size %ld should be in range [%ld,%ld]\n", out_size, min, max);
       assert(out_size >= min);
       assert(out_size <= max);
     }
@@ -516,7 +512,7 @@ static void test1(WriterType const wtype)
 }
 
 static void put_chars(WriterType const wtype, const char *const expected,
-  size_t const nelems, size_t min_size)
+                      size_t const nelems, size_t min_size)
 {
   int handle;
   {
@@ -526,7 +522,7 @@ static void put_chars(WriterType const wtype, const char *const expected,
     for (size_t i = 0; i < nelems; ++i) {
       if (file_is_extensible(wtype) || i < min_size) {
         assert(writer_fputc(expected[i], &w) == expected[i]);
-        assert(writer_ftell(&w) == (long)i+1l);
+        assert(writer_ftell(&w) == (long)i + 1l);
         assert(!writer_ferror(&w));
       } else {
         assert(writer_fputc(expected[i], &w) == EOF);
@@ -549,7 +545,8 @@ static void put_chars(WriterType const wtype, const char *const expected,
     unsigned char buf[TEST_STR_LEN + TailLen];
     assert(min_size <= sizeof buf);
     assert(nelems <= sizeof buf);
-    read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems, handle);
+    read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems,
+              handle);
 
     for (size_t i = 0; i < nelems; ++i) {
       assert(buf[i] == expected[i]);
@@ -576,7 +573,7 @@ static void test3(WriterType const wtype)
     Writer w;
     /* If writing to a buffer, reallocation should fail at the last
        byte */
-    handle = open_file_and_init_writer(wtype, &w, LongDataSize-1);
+    handle = open_file_and_init_writer(wtype, &w, LongDataSize - 1);
 
     /* We need to write a lot of uncompressable data to fill the
        output buffer and ensure that some needs to written to file. */
@@ -630,7 +627,7 @@ static void test8(WriterType const wtype)
 
     for (size_t i = 0; i < ARRAY_SIZE(expected); ++i) {
       assert(writer_fwrite(&expected[i], sizeof(expected[i]), 1, &w) == 1);
-      assert(writer_ftell(&w) == (long)sizeof(expected[i]) * ((long)i+1l));
+      assert(writer_ftell(&w) == (long)sizeof(expected[i]) * ((long)i + 1l));
       assert(!writer_ferror(&w));
     }
 
@@ -650,20 +647,22 @@ static void test8(WriterType const wtype)
 }
 
 static void write_mul(WriterType const wtype, const int *const expected,
-  size_t const nelems, size_t min_size)
+                      size_t const nelems, size_t min_size)
 {
   int handle;
   {
     Writer w;
-    handle = open_file_and_init_writer(wtype, &w,
-      min_size * sizeof(expected[0]));
+    handle =
+      open_file_and_init_writer(wtype, &w, min_size * sizeof(expected[0]));
 
     if (file_is_extensible(wtype) || nelems <= min_size) {
-      assert(writer_fwrite(expected, sizeof(expected[0]), nelems, &w) == nelems);
+      assert(writer_fwrite(expected, sizeof(expected[0]), nelems, &w) ==
+             nelems);
       assert(writer_ftell(&w) == (long)sizeof(expected[0]) * (long)nelems);
       assert(!writer_ferror(&w));
     } else {
-      assert(writer_fwrite(expected, sizeof(expected[0]), nelems, &w) <= min_size);
+      assert(writer_fwrite(expected, sizeof(expected[0]), nelems, &w) <=
+             min_size);
       assert(writer_ftell(&w) <= (long)sizeof(expected[0] * (long)min_size));
       assert(writer_ferror(&w));
     }
@@ -681,7 +680,8 @@ static void write_mul(WriterType const wtype, const int *const expected,
     int buf[4 + TailLen];
     assert(min_size <= ARRAY_SIZE(buf));
     assert(nelems <= ARRAY_SIZE(buf));
-    read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems, handle);
+    read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems,
+              handle);
 
     for (size_t i = 0; i < nelems; ++i) {
       assert(expected[i] == buf[i]);
@@ -767,7 +767,8 @@ static void test13(WriterType const wtype)
 {
   /* Write less than expected */
   static const int expected[] = {1232, -24243443, 0, -13};
-  write_mul(wtype, expected, ARRAY_SIZE(expected), ARRAY_SIZE(expected) + TailLen);
+  write_mul(wtype, expected, ARRAY_SIZE(expected),
+            ARRAY_SIZE(expected) + TailLen);
 }
 
 static void test14(WriterType const wtype)
@@ -786,8 +787,7 @@ static void test14(WriterType const wtype)
     /* We need to write a large amount of data to fill the output buffer
        and ensure that some needs to written to the file. */
     Fortify_SetNumAllocationsLimit(limit);
-    size_t const n = writer_fwrite(data, sizeof(data[0]),
-      ARRAY_SIZE(data), &w);
+    size_t const n = writer_fwrite(data, sizeof(data[0]), ARRAY_SIZE(data), &w);
 
     Fortify_SetNumAllocationsLimit(ULONG_MAX);
 
@@ -806,18 +806,12 @@ static void test14(WriterType const wtype)
       break;
   }
   assert(limit != FortifyAllocationLimit);
-
 }
 
 static void test15(WriterType const wtype)
 {
   /* Write ui16 */
-  static const uint16_t e[] = {
-    UINT16_MAX,
-    UINT16_MAX - 1,
-    0,
-    1,
-    0x1536 };
+  static const uint16_t e[] = {UINT16_MAX, UINT16_MAX - 1, 0, 1, 0x1536};
 
   unsigned char expected[sizeof(e)];
   size_t j = 0;
@@ -857,14 +851,7 @@ static void test16(WriterType const wtype)
 {
   /* Write i32 */
   static const int32_t e[] = {
-    INT32_MAX,
-    INT32_MIN,
-    INT32_MAX - 1,
-    INT32_MIN + 1,
-    0,
-    1,
-    -1,
-    0x7cf41536 };
+    INT32_MAX, INT32_MIN, INT32_MAX - 1, INT32_MIN + 1, 0, 1, -1, 0x7cf41536};
 
   unsigned char expected[sizeof(e)];
   size_t j = 0;
@@ -881,7 +868,7 @@ static void test16(WriterType const wtype)
 
     for (size_t x = 0; x < ARRAY_SIZE(e); ++x) {
       assert(writer_fwrite_int32(e[x], &w));
-      assert(writer_ftell(&w) == ((long)x+1l) * (long)sizeof(e[0]));
+      assert(writer_ftell(&w) == ((long)x + 1l) * (long)sizeof(e[0]));
       assert(!writer_ferror(&w));
     }
 
@@ -1316,11 +1303,10 @@ static void test28(WriterType const wtype)
 {
   /* Write after seek forward fail recovery */
   unsigned long limit;
-  unsigned char buf[Offset+1];
+  unsigned char buf[Offset + 1];
   int handle = 0;
 
-  for (limit = 0; limit < FortifyAllocationLimit; ++limit)
-  {
+  for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
     Writer w;
     handle = open_file_and_init_writer(wtype, &w, sizeof(buf));
 
@@ -1398,8 +1384,7 @@ static void test31(WriterType const wtype)
 {
   /* Init fail recovery */
   unsigned long limit;
-  for (limit = 0; limit < FortifyAllocationLimit; ++limit)
-  {
+  for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
     Writer w;
     wnum = 0;
     int const handle = open_file(wtype, 1);
@@ -1427,8 +1412,7 @@ static void test32(WriterType const wtype)
 {
   /* Destroy fail recovery */
   unsigned long limit;
-  for (limit = 0; limit < FortifyAllocationLimit; ++limit)
-  {
+  for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
     Writer w;
     wnum = 0;
     int const handle = open_file_and_init_writer(wtype, &w, 1);
@@ -1485,43 +1469,40 @@ static const char *wtype_to_string(WriterType const wtype)
 
 void Writer_tests(void)
 {
-  static const struct
-  {
+  static const struct {
     const char *test_name;
     void (*test_func)(WriterType const wtype);
-  }
-  unit_tests[] =
-  {
-    { "Init/term", test1 },
-    { "Put char", test2 },
-    { "Put char fail recovery", test3 },
-    { "Put more chars than expected", test4 },
-    { "Put fewer chars than expected", test5 },
-    { "Write one", test8 },
-    { "Write multiple", test9 },
-    { "Write zero", test10 },
-    { "Write zero size", test11 },
-    { "Write beyond buffer or expected end", test12 },
-    { "Write beyond buffer or expected end (non-zero)", test12b },
-    { "Write less than expected", test13 },
-    { "Write fail recovery", test14 },
-    { "Write ui16", test15 },
-    { "Write i32", test16 },
-    { "Seek forward from current", test17 },
-    { "Seek beyond expected end from current", test18 },
-    { "Seek current", test19 },
-    { "Seek back from current", test20 },
-    { "Seek forward then back from current", test21 },
-    { "Seek beyond start from current", test22 },
-    { "Seek back relative to start", test23 },
-    { "Seek back from start", test24 },
-    { "Seek forward from start", test25 },
-    { "Seek beyond expected end from start", test26 },
-    { "Seek from end", test27 },
-    { "Write after seek forward fail recovery", test28 },
-    { "Seek forward far from current", test30 },
-    { "Init fail recovery", test31 },
-    { "Destroy fail recovery", test32 },
+  } unit_tests[] = {
+    {"Init/term", test1},
+    {"Put char", test2},
+    {"Put char fail recovery", test3},
+    {"Put more chars than expected", test4},
+    {"Put fewer chars than expected", test5},
+    {"Write one", test8},
+    {"Write multiple", test9},
+    {"Write zero", test10},
+    {"Write zero size", test11},
+    {"Write beyond buffer or expected end", test12},
+    {"Write beyond buffer or expected end (non-zero)", test12b},
+    {"Write less than expected", test13},
+    {"Write fail recovery", test14},
+    {"Write ui16", test15},
+    {"Write i32", test16},
+    {"Seek forward from current", test17},
+    {"Seek beyond expected end from current", test18},
+    {"Seek current", test19},
+    {"Seek back from current", test20},
+    {"Seek forward then back from current", test21},
+    {"Seek beyond start from current", test22},
+    {"Seek back relative to start", test23},
+    {"Seek back from start", test24},
+    {"Seek forward from start", test25},
+    {"Seek beyond expected end from start", test26},
+    {"Seek from end", test27},
+    {"Write after seek forward fail recovery", test28},
+    {"Seek forward far from current", test30},
+    {"Init fail recovery", test31},
+    {"Destroy fail recovery", test32},
   };
 
   /* Due to a static initialization bug in gcc, zero-initialization
@@ -1532,16 +1513,11 @@ void Writer_tests(void)
     f[i] = NULL;
   }
 
-  for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count ++)
-  {
-    for (WriterType wtype = WRITERTYPE_RAW;
-         wtype < WRITERTYPE_COUNT;
+  for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count++) {
+    for (WriterType wtype = WRITERTYPE_RAW; wtype < WRITERTYPE_COUNT;
          wtype = (WriterType)(wtype + 1)) {
-      printf("Test %zu/%zu : %s (%s)\n",
-             1 + count,
-             ARRAY_SIZE(unit_tests),
-             unit_tests[count].test_name,
-             wtype_to_string(wtype));
+      printf("Test %zu/%zu : %s (%s)\n", 1 + count, ARRAY_SIZE(unit_tests),
+             unit_tests[count].test_name, wtype_to_string(wtype));
 
       Fortify_EnterScope();
       wnum = 0;

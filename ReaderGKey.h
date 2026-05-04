@@ -31,37 +31,35 @@ History:
 #define ReaderGKey_h
 
 /* ISO library header files */
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 /* Local header files */
 #include "Reader.h"
 
-bool reader_gkey_init(Reader */*reader*/,
-                      unsigned int /*history_log_2*/,
-                      FILE */*in*/);
-   /*
-    * creates an abstract reader object to allow the contents of a file that
-    * has been encoded in Gordon Key's compressed format to be read as
-    * though it were not thus encoded. The 'history_log_2' parameter is the
-    * number of bytes to look behind, in base 2 logarithmic form, and must
-    * be the same as that used to compress the data.
-    * Returns: true if successful, otherwise false. Can only fail because of
-    *          lack of free memory.
-    */
+bool reader_gkey_init(Reader * /*reader*/, unsigned int /*history_log_2*/,
+                      FILE * /*in*/);
+/*
+ * creates an abstract reader object to allow the contents of a file that
+ * has been encoded in Gordon Key's compressed format to be read as
+ * though it were not thus encoded. The 'history_log_2' parameter is the
+ * number of bytes to look behind, in base 2 logarithmic form, and must
+ * be the same as that used to compress the data.
+ * Returns: true if successful, otherwise false. Can only fail because of
+ *          lack of free memory.
+ */
 
-bool reader_gkey_init_from(Reader */*reader*/,
-                           unsigned int /*history_log_2*/,
-                           Reader */*in*/);
-   /*
-    * creates an abstract reader object to allow data from the reader object
-    * pointed to by 'in' to be decompressed on the fly, assuming that the
-    * data is encoded in Gordon Key's compressed format. The 'history_log_2'
-    * parameter is the number of bytes for the decompressor to look behind,
-    * in base 2 logarithmic form, and must be the same as that used to
-    * compress the data.
-    * Returns: true if successful, otherwise false. Can only fail because of
-    *          lack of free memory.
-    */
+bool reader_gkey_init_from(Reader * /*reader*/, unsigned int /*history_log_2*/,
+                           Reader * /*in*/);
+/*
+ * creates an abstract reader object to allow data from the reader object
+ * pointed to by 'in' to be decompressed on the fly, assuming that the
+ * data is encoded in Gordon Key's compressed format. The 'history_log_2'
+ * parameter is the number of bytes for the decompressor to look behind,
+ * in base 2 logarithmic form, and must be the same as that used to
+ * compress the data.
+ * Returns: true if successful, otherwise false. Can only fail because of
+ *          lack of free memory.
+ */
 
 #endif /* ReaderGKey_h */

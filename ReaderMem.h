@@ -36,17 +36,16 @@ History:
 /* Local header files */
 #include "Reader.h"
 
-bool reader_mem_init(Reader */*reader*/,
-                     const void */*buffer*/,
+bool reader_mem_init(Reader * /*reader*/, const void * /*buffer*/,
                      size_t /*buffer_size*/);
-   /*
-    * creates an abstract reader object to allow data to be read from the
-    * array pointed to by 'buffer' as if it were stored in a file.
-    * The maximum number of bytes that can be read is specified by
-    * 'buffer_size'. Functions attempting to read beyond the end of the
-    * array will return an error value and set the end-of-file indicator.
-    * Returns: true if successful, otherwise false. Can only fail because
-    *          of a lack of free memory.
-    */
+/*
+ * creates an abstract reader object to allow data to be read from the
+ * array pointed to by 'buffer' as if it were stored in a file.
+ * The maximum number of bytes that can be read is specified by
+ * 'buffer_size'. Functions attempting to read beyond the end of the
+ * array will return an error value and set the end-of-file indicator.
+ * Returns: true if successful, otherwise false. Can only fail because
+ *          of a lack of free memory.
+ */
 
 #endif /* ReaderMem_h */

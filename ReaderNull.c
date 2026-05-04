@@ -25,16 +25,16 @@
 
 /* ISO library header files */
 #include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 /* Local headers */
-#include "ReaderNull.h"
 #include "Internal/StreamMisc.h"
+#include "ReaderNull.h"
 
 static size_t reader_null_fread(void *ptr, size_t const size,
-                                Reader * const reader)
+                                Reader *const reader)
 {
   NOT_USED(ptr);
   NOT_USED(size);
@@ -43,7 +43,7 @@ static size_t reader_null_fread(void *ptr, size_t const size,
   return 0;
 }
 
-static void reader_null_destroy(Reader * const reader)
+static void reader_null_destroy(Reader *const reader)
 {
   NOT_USED(reader);
 }

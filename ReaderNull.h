@@ -32,10 +32,10 @@ History:
 /* Local header files */
 #include "Reader.h"
 
-void reader_null_init(Reader */*reader*/);
-   /*
-    * creates an abstract reader object to allow zero bytes to be read as
-    * if from an empty file.
-    */
+void reader_null_init(Reader * /*reader*/);
+/*
+ * creates an abstract reader object to allow zero bytes to be read as
+ * if from an empty file.
+ */
 
 #endif /* ReaderNull_h */

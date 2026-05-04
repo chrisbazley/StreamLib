@@ -30,23 +30,22 @@
 */
 
 /* ISO library header files */
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* GKey library files */
 #include "GKeyDecomp.h"
 
 /* Local headers */
+#include "Internal/StreamMisc.h"
 #include "ReaderGKey.h"
 #include "ReaderRaw.h"
-#include "Internal/StreamMisc.h"
 
-enum
-{
+enum {
   BUFFER_SIZE = 256, /* No. of bytes to decompress at a time */
 };
 
@@ -82,8 +81,9 @@ static void rewind_reinit(ReaderGKeyData *const data)
   data->state.params.in_size = 0;
 }
 
-static unsigned long read_core(_Optional char *ptr, unsigned long const bytes_to_read,
-  Reader * const reader)
+static unsigned long read_core(_Optional char *ptr,
+                               unsigned long const bytes_to_read,
+                               Reader *const reader)
 {
   unsigned long bytes_read = 0;
 
@@ -97,15 +97,15 @@ static unsigned long read_core(_Optional char *ptr, unsigned long const bytes_to
        then copy that to the caller's buffer. */
     assert((const char *)data->state.params.out_buffer >= data->state.out_ptr);
     unsigned long const n = bytes_to_read - bytes_read;
-    const size_t bytes_avail = (const char *)data->state.params.out_buffer -
-                                  data->state.out_ptr;
+    const size_t bytes_avail =
+      (const char *)data->state.params.out_buffer - data->state.out_ptr;
     DEBUG_VERBOSEF("%zu bytes are available (need %lu)\n", bytes_avail, n);
     const size_t copy_size = (size_t)(n > bytes_avail ? bytes_avail : n);
 
     if (copy_size) {
       if (ptr) {
         DEBUG_VERBOSEF("Copying %zu of %zu bytes from output buffer\n",
-               copy_size, bytes_avail);
+                       copy_size, bytes_avail);
         memcpy(&*ptr, data->state.out_ptr, copy_size);
         ptr = ptr + copy_size;
       }
@@ -115,8 +115,9 @@ static unsigned long read_core(_Optional char *ptr, unsigned long const bytes_to
 
     /* If we didn't get enough data yet then decompress some more. */
     if (bytes_read < bytes_to_read) {
-      DEBUG_VERBOSEF("Need to refill output buffer (only got %lu of %lu bytes)\n",
-             bytes_read, bytes_to_read);
+      DEBUG_VERBOSEF(
+        "Need to refill output buffer (only got %lu of %lu bytes)\n",
+        bytes_read, bytes_to_read);
 
       bool in_pending = false;
       GKeyStatus status = GKeyStatus_OK;
@@ -133,8 +134,9 @@ static unsigned long read_core(_Optional char *ptr, unsigned long const bytes_to
           data->state.params.in_size = reader_fread(
             data->buffer.in, 1, sizeof(data->buffer.in), data->state.backend);
 
-          DEBUG_VERBOSEF("Filled input buffer with %zu bytes of compressed data\n",
-                 data->state.params.in_size);
+          DEBUG_VERBOSEF(
+            "Filled input buffer with %zu bytes of compressed data\n",
+            data->state.params.in_size);
           if (data->state.params.in_size != sizeof(data->buffer.in) &&
               reader_ferror(data->state.backend)) {
             /* Read error not end of file */
@@ -159,38 +161,39 @@ static unsigned long read_core(_Optional char *ptr, unsigned long const bytes_to
         }
       } while (in_pending && status == GKeyStatus_OK);
 
-      DEBUG_VERBOSEF("Filled output buffer with %zu bytes of uncompressed data\n",
-             sizeof(data->buffer.out) - data->state.params.out_size);
+      DEBUG_VERBOSEF(
+        "Filled output buffer with %zu bytes of uncompressed data\n",
+        sizeof(data->buffer.out) - data->state.params.out_size);
 
       if (!reader->error) {
         switch (status) {
-          case GKeyStatus_BadInput:
-            DEBUGF("Compressed bitstream contains bad data\n");
-            reader->error = 1;
-            break;
+        case GKeyStatus_BadInput:
+          DEBUGF("Compressed bitstream contains bad data\n");
+          reader->error = 1;
+          break;
 
-          case GKeyStatus_TruncatedInput:
+        case GKeyStatus_TruncatedInput:
+          DEBUGF("Compressed bitstream appears truncated\n");
+          reader->error = 1;
+          break;
+
+        case GKeyStatus_BufferOverflow:
+          /* The output buffer was filled but not all of the data in
+             the input buffer was used up. */
+          assert(data->state.params.out_size == 0);
+          break;
+
+        case GKeyStatus_OK:
+          assert(!in_pending);
+          if (data->state.params.out_size == sizeof(data->buffer.out)) {
             DEBUGF("Compressed bitstream appears truncated\n");
             reader->error = 1;
-            break;
+          }
+          break;
 
-          case GKeyStatus_BufferOverflow:
-            /* The output buffer was filled but not all of the data in
-               the input buffer was used up. */
-            assert(data->state.params.out_size == 0);
-            break;
-
-          case GKeyStatus_OK:
-            assert(!in_pending);
-            if (data->state.params.out_size == sizeof(data->buffer.out)) {
-              DEBUGF("Compressed bitstream appears truncated\n");
-              reader->error = 1;
-            }
-            break;
-
-          default:
-            assert("Impossible state" == NULL);
-            break;
+        default:
+          assert("Impossible state" == NULL);
+          break;
         }
       }
     }
@@ -207,7 +210,7 @@ static bool read_hdr(ReaderGKeyData *const data)
   int32_t out_len;
   if (!reader_fread_int32(&out_len, data->state.backend)) {
     DEBUGF("Failed to read decompressed size: %s\n",
-            reader_feof(data->state.backend) ? "End of file" : "Error");
+           reader_feof(data->state.backend) ? "End of file" : "Error");
     return false;
   }
 
@@ -221,8 +224,8 @@ static bool read_hdr(ReaderGKeyData *const data)
   return true;
 }
 
-static size_t reader_gkey_fread(void * const ptr, size_t bytes_to_read,
-                                Reader * const reader)
+static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
+                                Reader *const reader)
 {
   assert(ptr != NULL);
   assert(reader != NULL);
@@ -243,14 +246,15 @@ static size_t reader_gkey_fread(void * const ptr, size_t bytes_to_read,
   /* If fseek was used since the last read then find the right
      position at which to start reading. */
   if (reader->fpos > data->state.out_len) {
-    DEBUGF("Can't seek %ld beyond end %ld\n", reader->fpos, data->state.out_len);
+    DEBUGF("Can't seek %ld beyond end %ld\n", reader->fpos,
+           data->state.out_len);
     reader->error = 1;
     return 0;
   }
 
   if (reader->fpos != data->state.out_total) {
     DEBUGF("Seeking offset %ld in file (out %ld)\n", reader->fpos,
-      data->state.out_total);
+           data->state.out_total);
 
     if (reader->fpos < data->state.out_total) {
       assert(data->state.out_ptr >= data->buffer.out);
@@ -292,8 +296,7 @@ static size_t reader_gkey_fread(void * const ptr, size_t bytes_to_read,
   /* Don't try to read more bytes than advertised as available. */
   unsigned long const avail = data->state.out_len - data->state.out_total;
   if (avail < bytes_to_read) {
-    DEBUGF("Can't read %zu bytes: end of file at %lu\n",
-      bytes_to_read, avail);
+    DEBUGF("Can't read %zu bytes: end of file at %lu\n", bytes_to_read, avail);
 
     bytes_to_read = (size_t)avail;
     reader->eof = 1;
@@ -304,7 +307,7 @@ static size_t reader_gkey_fread(void * const ptr, size_t bytes_to_read,
   return (size_t)nread;
 }
 
-static void reader_gkey_destroy(Reader * const reader)
+static void reader_gkey_destroy(Reader *const reader)
 {
   assert(reader != NULL);
   ReaderGKeyData *const data = reader->data;
@@ -317,9 +320,8 @@ static void reader_gkey_destroy(Reader * const reader)
   free(data);
 }
 
-bool reader_gkey_init_from(Reader * const reader,
-                           unsigned int const history_log_2,
-                           Reader * const in)
+bool reader_gkey_init_from(Reader *const reader,
+                           unsigned int const history_log_2, Reader *const in)
 {
   assert(reader != NULL);
   assert(in != NULL);
@@ -336,10 +338,11 @@ bool reader_gkey_init_from(Reader * const reader,
     .backend = in,
     .owns_backend = false,
     .read_hdr = false,
-    .params = {
-      .prog_cb = (GKeyProgressFn *)NULL,
-      .cb_arg = reader,
-    },
+    .params =
+      {
+        .prog_cb = (GKeyProgressFn *)NULL,
+        .cb_arg = reader,
+      },
   };
 
   _Optional GKeyDecomp *const decomp = gkeydecomp_make(history_log_2);
@@ -357,9 +360,8 @@ bool reader_gkey_init_from(Reader * const reader,
   return true;
 }
 
-bool reader_gkey_init(Reader * const reader,
-                      unsigned int const history_log_2,
-                      FILE * const in)
+bool reader_gkey_init(Reader *const reader, unsigned int const history_log_2,
+                      FILE *const in)
 {
   assert(reader != NULL);
   assert(in != NULL);
@@ -374,8 +376,7 @@ bool reader_gkey_init(Reader * const reader,
 
   reader_raw_init(&*raw, in);
 
-  bool const success = reader_gkey_init_from(
-    reader, history_log_2, &*raw);
+  bool const success = reader_gkey_init_from(reader, history_log_2, &*raw);
 
   if (!success) {
     DEBUGF("Failed to initialize a new reader\n");

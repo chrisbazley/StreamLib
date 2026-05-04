@@ -27,17 +27,17 @@
 */
 
 /* ISO library header files */
+#include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <limits.h>
 
 /* Acorn C/C++ header files */
 #include "flex.h"
 
 /* Local headers */
-#include "ReaderFlex.h"
 #include "Internal/StreamMisc.h"
+#include "ReaderFlex.h"
 
 static int buffer_size(flex_ptr const anchor)
 {
@@ -46,7 +46,7 @@ static int buffer_size(flex_ptr const anchor)
 }
 
 static size_t reader_flex_fread(void *ptr, size_t const size,
-                                Reader * const reader)
+                                Reader *const reader)
 {
   assert(ptr != NULL);
   assert(reader != NULL);
@@ -75,8 +75,7 @@ static size_t reader_flex_fread(void *ptr, size_t const size,
   }
   DEBUGF("Reading %zu of %zu bytes\n", nread, size);
 
-  if (nread > 0)
-  {
+  if (nread > 0) {
     int const bstate = flex_set_budge(0);
     assert(*anchor != NULL);
     const char *rptr = (char *)*anchor + reader->fpos;
@@ -87,12 +86,12 @@ static size_t reader_flex_fread(void *ptr, size_t const size,
   return nread;
 }
 
-static void reader_flex_destroy(Reader * const reader)
+static void reader_flex_destroy(Reader *const reader)
 {
   NOT_USED(reader);
 }
 
-void reader_flex_init(Reader * const reader, flex_ptr const anchor)
+void reader_flex_init(Reader *const reader, flex_ptr const anchor)
 {
   assert(reader != NULL);
   assert(anchor != NULL);

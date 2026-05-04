@@ -26,21 +26,21 @@
 */
 
 /* ISO library header files */
+#include <limits.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <limits.h>
 
 /* Local headers */
-#include "WriterHeap.h"
 #include "Internal/StreamMisc.h"
+#include "WriterHeap.h"
 
 typedef struct {
   _Optional void **buffer;
   size_t buffer_size;
 } WriterHeapData;
 
-static void zero_extend(Writer * const writer, size_t const new_size)
+static void zero_extend(Writer *const writer, size_t const new_size)
 {
   assert(writer != NULL);
   WriterHeapData *const data = writer->data;
@@ -48,8 +48,7 @@ static void zero_extend(Writer * const writer, size_t const new_size)
 
   assert(new_size >= (unsigned long)writer->flen);
   size_t const bytes_to_skip = new_size - (size_t)writer->flen;
-  DEBUGF("Zeroing %zu bytes at offset %ld\n",
-    bytes_to_skip, writer->flen);
+  DEBUGF("Zeroing %zu bytes at offset %ld\n", bytes_to_skip, writer->flen);
 
   if (bytes_to_skip > 0) {
     assert(data->buffer != NULL);
@@ -58,14 +57,13 @@ static void zero_extend(Writer * const writer, size_t const new_size)
   }
 }
 
-static bool resize_buffer(Writer * const writer, size_t const new_size)
+static bool resize_buffer(Writer *const writer, size_t const new_size)
 {
   assert(writer != NULL);
   WriterHeapData *const data = writer->data;
   assert(data != NULL);
 
-  DEBUGF("realloc from %zu to %zu for writer\n",
-    data->buffer_size, new_size);
+  DEBUGF("realloc from %zu to %zu for writer\n", data->buffer_size, new_size);
 
   _Optional char *const new_buffer = realloc(*data->buffer, new_size);
   if (new_buffer == NULL) {
@@ -78,7 +76,7 @@ static bool resize_buffer(Writer * const writer, size_t const new_size)
   return true;
 }
 
-static bool cleanup(Writer * const writer)
+static bool cleanup(Writer *const writer)
 {
   assert(writer != NULL);
   WriterHeapData *const data = writer->data;
@@ -93,8 +91,8 @@ static bool cleanup(Writer * const writer)
   return true;
 }
 
-static size_t writer_heap_fwrite(void const *ptr,
-  size_t const size, Writer * const writer)
+static size_t writer_heap_fwrite(void const *ptr, size_t const size,
+                                 Writer *const writer)
 {
   assert(ptr != NULL);
   assert(writer != NULL);
@@ -108,8 +106,8 @@ static size_t writer_heap_fwrite(void const *ptr,
 
   unsigned long const end = writer->fpos + size;
   if (end > SIZE_MAX) {
-    DEBUGF("File position %ld or data size %zu is too big\n",
-      writer->fpos, size);
+    DEBUGF("File position %ld or data size %zu is too big\n", writer->fpos,
+           size);
 
     writer->error = 1;
     return 0;
@@ -117,8 +115,7 @@ static size_t writer_heap_fwrite(void const *ptr,
 
   if (end > buffer_size) {
     size_t newsize = (size_t)end;
-    if ((buffer_size <= (SIZE_MAX / 2)) &&
-        ((buffer_size * 2) >= newsize)) {
+    if ((buffer_size <= (SIZE_MAX / 2)) && ((buffer_size * 2) >= newsize)) {
       newsize = buffer_size * 2;
     }
     if (!resize_buffer(writer, newsize)) {
@@ -140,7 +137,7 @@ static size_t writer_heap_fwrite(void const *ptr,
   return size;
 }
 
-static bool writer_heap_destroy(Writer * const writer)
+static bool writer_heap_destroy(Writer *const writer)
 {
   assert(writer != NULL);
   /* Acorn's fclose does not attempt to write any buffered data if
@@ -153,8 +150,8 @@ static bool writer_heap_destroy(Writer * const writer)
   return success;
 }
 
-bool writer_heap_init(Writer * const writer, _Optional void ** const buffer,
-  size_t const buffer_size)
+bool writer_heap_init(Writer *const writer, _Optional void **const buffer,
+                      size_t const buffer_size)
 {
   assert(writer != NULL);
   assert(buffer != NULL);

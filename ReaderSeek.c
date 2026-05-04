@@ -26,11 +26,10 @@
 #include <stdio.h>
 
 /* Local headers */
-#include "Reader.h"
 #include "Internal/StreamMisc.h"
+#include "Reader.h"
 
-int reader_fseek(Reader * const reader, long int offset,
-  int const whence)
+int reader_fseek(Reader *const reader, long int offset, int const whence)
 {
   assert(reader != NULL);
 
@@ -41,34 +40,34 @@ int reader_fseek(Reader * const reader, long int offset,
   }
 
   switch (whence) {
-    case SEEK_CUR:
-      DEBUGF("Seeking %ld bytes beyond the current position\n", offset);
-      /* -offset may not be representable if -LONG_MIN > LONG_MAX */
-      if ((offset < 0) && (offset < -reader->fpos)) {
-        reader->error = 1;
-        return -1; /* invalid offset */
-      }
-      if (offset != 0) {
-        reader->fpos += offset;
-        reader->repos = 1;
-      }
-      break;
+  case SEEK_CUR:
+    DEBUGF("Seeking %ld bytes beyond the current position\n", offset);
+    /* -offset may not be representable if -LONG_MIN > LONG_MAX */
+    if ((offset < 0) && (offset < -reader->fpos)) {
+      reader->error = 1;
+      return -1; /* invalid offset */
+    }
+    if (offset != 0) {
+      reader->fpos += offset;
+      reader->repos = 1;
+    }
+    break;
 
-    case SEEK_SET:
-      DEBUGF("Seeking %ld bytes beyond the start\n", offset);
-      if (offset < 0) {
-        reader->error = 1;
-        return -1; /* invalid offset */
-      }
-      if (offset != reader->fpos) {
-        reader->fpos = offset;
-        reader->repos = 1;
-      }
-      break;
+  case SEEK_SET:
+    DEBUGF("Seeking %ld bytes beyond the start\n", offset);
+    if (offset < 0) {
+      reader->error = 1;
+      return -1; /* invalid offset */
+    }
+    if (offset != reader->fpos) {
+      reader->fpos = offset;
+      reader->repos = 1;
+    }
+    break;
 
-    default:
-      /* A binary stream need not meaningfully support SEEK_END */
-      return -1;
+  default:
+    /* A binary stream need not meaningfully support SEEK_END */
+    return -1;
   }
 
   /* Clear any end-of-file condition and undo any previous call to

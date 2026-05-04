@@ -32,10 +32,10 @@ History:
 /* Local header files */
 #include "Writer.h"
 
-void writer_null_init(Writer */*writer*/);
-   /*
-    * creates an abstract writer object to allow an infinite sequence of
-    * of bytes to be discarded as if it were stored in a file.
-    */
+void writer_null_init(Writer * /*writer*/);
+/*
+ * creates an abstract writer object to allow an infinite sequence of
+ * of bytes to be discarded as if it were stored in a file.
+ */
 
 #endif /* WriterNull_h */

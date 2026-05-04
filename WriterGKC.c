@@ -32,21 +32,20 @@
 */
 
 /* ISO library header files */
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* GKey library files */
 #include "GKeyComp.h"
 
 /* Local headers */
-#include "WriterGKC.h"
 #include "Internal/StreamMisc.h"
+#include "WriterGKC.h"
 
-enum
-{
+enum {
   BUFFER_SIZE = 256, /* No. of bytes to compress at a time */
 };
 
@@ -75,15 +74,17 @@ static void prepare_for_input(WriterGKeyData *const data)
 static void empty_in(WriterGKeyData *const data)
 {
   assert(data != NULL);
-  data->state.params.in_size = data->state.in_ptr -
-                         (const char *)data->state.params.in_buffer;
+  data->state.params.in_size =
+    data->state.in_ptr - (const char *)data->state.params.in_buffer;
   DEBUGF("Flushing %zu bytes of input\n", data->state.params.in_size);
 
   /* Compress the data from the input buffer to the output buffer */
-  GKeyStatus const status = gkeycomp_compress(data->state.comp, &data->state.params);
+  GKeyStatus const status =
+    gkeycomp_compress(data->state.comp, &data->state.params);
   assert(status == GKeyStatus_OK || status == GKeyStatus_Finished);
   NOT_USED(status);
-  DEBUGF("Generated %zu bytes of compressed data\n", data->state.params.out_size);
+  DEBUGF("Generated %zu bytes of compressed data\n",
+         data->state.params.out_size);
 
   /* Reset the input buffer if it has been consumed. */
   if (!data->state.params.in_size) {
@@ -100,7 +101,7 @@ static void flush(WriterGKeyData *const data)
 }
 
 static void write_core(_Optional char const *ptr,
-  unsigned long const bytes_to_write, Writer *const writer)
+                       unsigned long const bytes_to_write, Writer *const writer)
 {
   assert(writer != NULL);
   WriterGKeyData *const data = writer->data;
@@ -112,8 +113,8 @@ static void write_core(_Optional char const *ptr,
        then copy it from the caller's buffer. */
     assert((const char *)data->state.params.in_buffer <= data->state.in_ptr);
     unsigned long const n = bytes_to_write - bytes_written;
-    const size_t space_used = data->state.in_ptr -
-                              (const char *)data->state.params.in_buffer;
+    const size_t space_used =
+      data->state.in_ptr - (const char *)data->state.params.in_buffer;
 
     assert(space_used <= sizeof(data->buffer.in));
     const size_t space_avail = sizeof(data->buffer.in) - space_used;
@@ -121,13 +122,13 @@ static void write_core(_Optional char const *ptr,
 
     if (copy_size) {
       if (ptr) {
-        DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n",
-               copy_size, space_avail);
+        DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n", copy_size,
+                       space_avail);
         memcpy(data->state.in_ptr, &*ptr, copy_size);
         ptr = ptr + copy_size;
       } else {
-        DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n",
-               copy_size, space_avail);
+        DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n", copy_size,
+                       space_avail);
         memset(data->state.in_ptr, 0, copy_size);
       }
       data->state.in_ptr += copy_size;
@@ -154,8 +155,8 @@ static bool cleanup(Writer *const writer)
 
   if (flen < min_size) {
     unsigned long const nzeros = min_size - flen;
-    DEBUGF("Writing %lu trailing zeros to reach min size %ld\n",
-           nzeros, min_size);
+    DEBUGF("Writing %lu trailing zeros to reach min size %ld\n", nzeros,
+           min_size);
 
     write_core(NULL, nzeros, writer);
   }
@@ -167,12 +168,14 @@ static bool cleanup(Writer *const writer)
     return false;
   }
   assert(data->state.out_size != NULL);
-  *data->state.out_size = (long)sizeof(int32_t) + (long)data->state.params.out_size;
+  *data->state.out_size =
+    (long)sizeof(int32_t) + (long)data->state.params.out_size;
   return true;
 }
 
-static size_t writer_gkc_fwrite(void const * const ptr,
-  size_t const bytes_to_write, Writer * const writer)
+static size_t writer_gkc_fwrite(void const *const ptr,
+                                size_t const bytes_to_write,
+                                Writer *const writer)
 {
   assert(ptr != NULL);
   assert(writer != NULL);
@@ -200,7 +203,7 @@ static size_t writer_gkc_fwrite(void const * const ptr,
   return bytes_to_write;
 }
 
-static bool writer_gkc_destroy(Writer * const writer)
+static bool writer_gkc_destroy(Writer *const writer)
 {
   assert(writer != NULL);
   WriterGKeyData *const data = writer->data;
@@ -218,17 +221,15 @@ static bool writer_gkc_destroy(Writer * const writer)
   return success;
 }
 
-bool writer_gkc_init(Writer * const writer,
-                      unsigned int const history_log_2,
-                      long int *const out_size)
+bool writer_gkc_init(Writer *const writer, unsigned int const history_log_2,
+                     long int *const out_size)
 {
   return writer_gkc_init_with_min(writer, history_log_2, 0, out_size);
 }
 
-bool writer_gkc_init_with_min(Writer * const writer,
+bool writer_gkc_init_with_min(Writer *const writer,
                               unsigned int const history_log_2,
-                              long int const min_size,
-                              long int *const out_size)
+                              long int const min_size, long int *const out_size)
 {
   assert(writer != NULL);
   assert(min_size >= 0);
@@ -241,12 +242,13 @@ bool writer_gkc_init_with_min(Writer * const writer,
   }
 
   data->state = (WriterGKeyState){
-    .params = {
-      .out_buffer = NULL,
-      .out_size = 0,
-      .prog_cb = (GKeyProgressFn *)NULL,
-      .cb_arg = writer,
-    },
+    .params =
+      {
+        .out_buffer = NULL,
+        .out_size = 0,
+        .prog_cb = (GKeyProgressFn *)NULL,
+        .cb_arg = writer,
+      },
     .min_size = min_size,
     .out_size = out_size,
   };

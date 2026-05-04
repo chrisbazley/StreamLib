@@ -35,8 +35,8 @@
 #ifdef USE_CBDEBUG
 
 #include "Debug.h"
-#include "PseudoIO.h"
 #include "PseudoFlex.h"
+#include "PseudoIO.h"
 
 #else /* USE_CBDEBUG */
 
@@ -54,14 +54,14 @@
 
 static inline void optional_free(_Optional void *x)
 {
-    free((void *)x);
+  free((void *)x);
 }
 #undef free
 #define free(x) optional_free(x)
 
 static inline _Optional void *optional_malloc(size_t n)
 {
-    return malloc(n);
+  return malloc(n);
 }
 #undef malloc
 #define malloc(n) optional_malloc(n)

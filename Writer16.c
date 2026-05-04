@@ -24,21 +24,21 @@
 */
 
 /* ISO library header files */
-#include <stdint.h>
-#include <stdbool.h>
 #include <limits.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /* Local headers */
-#include "Writer.h"
 #include "Internal/StreamMisc.h"
+#include "Writer.h"
 
-bool writer_fwrite_uint16(uint16_t const val, Writer * const writer)
+bool writer_fwrite_uint16(uint16_t const val, Writer *const writer)
 {
   unsigned char const bytes[sizeof(val)] = {val, val >> 8};
   return writer_fwrite(&bytes, sizeof(bytes), 1, writer) == 1;
 }
 
-bool writer_fwrite_int16(int16_t const val, Writer * const writer)
+bool writer_fwrite_int16(int16_t const val, Writer *const writer)
 {
   return writer_fwrite_uint16(val, writer);
 }
