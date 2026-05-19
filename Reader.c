@@ -40,6 +40,7 @@
   CJB: 07-Jun-20: Debugging output is less verbose by default.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 19-May-26: Explicitly convert between size_t and long int.
 */
 
 /* ISO library header files */
@@ -113,8 +114,11 @@ size_t reader_fread(void *ptr, size_t const size, size_t const nmemb,
         } else {
           size_t const n = reader->fns.fread_fn(ptr, bytes_to_read, reader);
 
+          assert(nbytes <= SIZE_MAX - n);
           nbytes += n;
-          reader->fpos += n;
+          assert(n <= (unsigned long)LONG_MAX);
+          assert(reader->fpos <= LONG_MAX - (long)n);
+          reader->fpos += (long)n;
         }
       }
       if (size == nbytes) {
