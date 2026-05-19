@@ -70,7 +70,7 @@ typedef enum {
 
 static _Optional void *anchors[NumberOfWriters];
 static _Optional void *buffers[NumberOfWriters];
-static _Optional FILE *f[NumberOfWriters];
+static _Optional FILE *files[NumberOfWriters];
 static int wnum = 0;
 static char file_names[NumberOfWriters][L_tmpnam];
 static long int out_size;
@@ -80,7 +80,7 @@ static void close_file(WriterType const wtype, int const handle)
   printf("Closing file with handle %d\n", handle);
   assert(handle >= 0);
   assert(handle < NumberOfWriters);
-  _Optional FILE *const fh = f[handle];
+  _Optional FILE *const fh = files[handle];
 
   switch (wtype) {
   case WRITERTYPE_RAW:
@@ -89,7 +89,7 @@ static void close_file(WriterType const wtype, int const handle)
     if (fclose(&*fh)) {
       perror("fclose failed");
     }
-    f[handle] = NULL;
+    files[handle] = NULL;
     break;
 
 #ifdef ACORN_FLEX
@@ -358,16 +358,16 @@ static int open_file(WriterType const wtype, size_t const min_size)
   switch (wtype) {
   case WRITERTYPE_RAW:
     tmpnam(file_names[wnum]);
-    assert(f[wnum] == NULL);
-    f[wnum] = fopen(file_names[wnum], "wb");
-    assert(f[wnum] != NULL);
+    assert(files[wnum] == NULL);
+    files[wnum] = fopen(file_names[wnum], "wb");
+    assert(files[wnum] != NULL);
     break;
 
   case WRITERTYPE_GKEY:
     tmpnam(file_names[wnum]);
-    assert(f[wnum] == NULL);
-    f[wnum] = fopen(file_names[wnum], "wb");
-    assert(f[wnum] != NULL);
+    assert(files[wnum] == NULL);
+    files[wnum] = fopen(file_names[wnum], "wb");
+    assert(files[wnum] != NULL);
     break;
 
 #ifdef ACORN_FLEX
@@ -415,7 +415,7 @@ static bool init_writer(WriterType const wtype, Writer *const w,
   assert(handle < NumberOfWriters);
   printf("Init writer with size %zu and handle %d\n", min_size, handle);
 
-  _Optional FILE *const fh = f[handle];
+  _Optional FILE *const fh = files[handle];
   _Optional char *const bh = buffers[handle];
 
   switch (wtype) {
@@ -1106,7 +1106,7 @@ static void test22(WriterType const wtype)
   }
 
   if (wtype == WRITERTYPE_RAW) {
-    _Optional FILE *const fh = f[handle];
+    _Optional FILE *const fh = files[handle];
     assert(fh);
     rewind(&*fh);
     assert(!ferror(&*fh));
@@ -1190,7 +1190,7 @@ static void test24(WriterType const wtype)
   }
 
   if (wtype == WRITERTYPE_RAW) {
-    _Optional FILE *const fh = f[handle];
+    _Optional FILE *const fh = files[handle];
     assert(fh);
     rewind(&*fh);
     assert(fputc(TEST_STR[0], &*fh) == TEST_STR[0]);
@@ -1510,7 +1510,7 @@ void Writer_tests(void)
   for (size_t i = 0; i < NumberOfWriters; ++i) {
     anchors[i] = NULL;
     buffers[i] = NULL;
-    f[i] = NULL;
+    files[i] = NULL;
   }
 
   for (size_t count = 0; count < ARRAY_SIZE(unit_tests); count++) {
