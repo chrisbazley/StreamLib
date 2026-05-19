@@ -26,6 +26,7 @@ History:
                   of macros. Added function documentation.
   CJB: 10-Jul-20: Added signed 16-bit and unsigned 32-bit read functions.
   CJB: 28-Jul-22: Removed redundant use of the 'extern' keyword.
+  CJB: 19-May-26: Use bool type for bitfields.
 */
 
 #ifndef Reader_h
@@ -63,7 +64,7 @@ typedef struct {
 } ReaderFns;
 
 typedef struct Reader {
-  unsigned int error : 1, eof : 1, repos : 1;
+  bool error : 1, eof : 1, repos : 1;
   void *data;
   int pushed_back;
   long int fpos;
