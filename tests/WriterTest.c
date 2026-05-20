@@ -656,7 +656,7 @@ static void write_mul(WriterType const wtype, const int *const expected,
   {
     Writer w;
     handle =
-      open_file_and_init_writer(wtype, &w, min_size * sizeof(expected[0]));
+      open_file_and_init_writer(wtype, &w, (long)(min_size * sizeof(expected[0])));
 
     if (file_is_extensible(wtype) || nelems <= min_size) {
       assert(writer_fwrite(expected, sizeof(expected[0]), nelems, &w) ==
