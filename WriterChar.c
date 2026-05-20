@@ -20,6 +20,7 @@
 /* History:
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 20-May-26: Make conversion to unsigned char explicit.
 */
 
 /* ISO library header files */
@@ -31,7 +32,7 @@
 
 int writer_fputc(int const c, Writer *const writer)
 {
-  unsigned char cc = c;
+  unsigned char cc = (unsigned char)c;
   assert(writer != NULL);
   return (writer_fwrite(&cc, sizeof(cc), 1, writer) == 1) ? c : EOF;
 }
