@@ -777,7 +777,7 @@ static void test14(WriterType const wtype)
   unsigned long limit;
   unsigned char data[LongDataSize];
   for (size_t n = 0; n < sizeof(data); ++n) {
-    data[n] = rand();
+    data[n] = (unsigned char)rand();
   }
 
   for (limit = 0; limit < FortifyAllocationLimit; ++limit) {
@@ -817,7 +817,7 @@ static void test15(WriterType const wtype)
   size_t j = 0;
   for (size_t i = 0; i < ARRAY_SIZE(e); ++i) {
     for (size_t k = 0; k < sizeof(e[0]); ++k) {
-      expected[j++] = e[i] >> (CHAR_BIT * k);
+      expected[j++] = (unsigned char)(e[i] >> (CHAR_BIT * k));
     }
   };
 
@@ -857,7 +857,7 @@ static void test16(WriterType const wtype)
   size_t j = 0;
   for (size_t i = 0; i < ARRAY_SIZE(e); ++i) {
     for (size_t k = 0; k < sizeof(e[0]); ++k) {
-      expected[j++] = (uint32_t)e[i] >> (CHAR_BIT * k);
+      expected[j++] = (unsigned char)((uint32_t)e[i] >> (CHAR_BIT * k));
     }
   };
 
