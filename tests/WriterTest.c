@@ -349,11 +349,11 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
   }
 }
 
-static int open_file(WriterType const wtype, size_t const min_size)
+static int open_file(WriterType const wtype, long int const min_size)
 {
   assert(wnum >= 0);
   assert(wnum < NumberOfWriters);
-  printf("Opening file of size %zu\n", min_size);
+  printf("Opening file of size %ld\n", min_size);
 
   switch (wtype) {
   case WRITERTYPE_RAW:
@@ -385,7 +385,7 @@ static int open_file(WriterType const wtype, size_t const min_size)
   case WRITERTYPE_MEM:
   case WRITERTYPE_HEAP:
     assert(!buffers[wnum]);
-    assert(min_size <= SIZE_MAX);
+    assert((unsigned long)min_size <= SIZE_MAX);
     if (min_size > 0) {
       buffers[wnum] = malloc(min_size);
       assert(buffers[wnum] != NULL);
@@ -464,7 +464,7 @@ static bool init_writer(WriterType const wtype, Writer *const w,
 }
 
 static int open_file_and_init_writer(WriterType const wtype, Writer *const w,
-                                     size_t const min_size)
+                                     long int const min_size)
 {
   int const handle = open_file(wtype, min_size);
   assert(init_writer(wtype, w, min_size, handle));
@@ -545,15 +545,15 @@ static void put_chars(WriterType const wtype, const char *const expected,
     }
 
     unsigned char buf[TEST_STR_LEN + TailLen];
-    assert(min_size <= sizeof buf);
-    assert(nelems <= sizeof buf);
+    assert(min_size <= (long)sizeof buf);
+    assert(nelems <= (long)sizeof buf);
     read_file(wtype, buf, sizeof(buf[0]), min_size > nelems ? min_size : nelems,
               handle);
 
-    for (size_t i = 0; i < nelems; ++i) {
+    for (long int i = 0; i < nelems; ++i) {
       assert(buf[i] == expected[i]);
     }
-    for (size_t i = nelems; i < min_size; ++i) {
+    for (long int i = nelems; i < min_size; ++i) {
       assert(buf[i] == 0);
     }
   }
