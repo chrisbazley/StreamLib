@@ -734,7 +734,7 @@ static void test15(ReaderType const rtype)
   size_t j = 0;
   for (size_t i = 0; i < ARRAY_SIZE(e); ++i) {
     for (size_t k = 0; k < sizeof(e[0]); ++k) {
-      expected[j++] = e[i] >> (CHAR_BIT * k);
+      expected[j++] = (unsigned char)(e[i] >> (CHAR_BIT * k));
     }
   };
 
@@ -783,7 +783,7 @@ static void test16(ReaderType const rtype)
   size_t j = 0;
   for (size_t i = 0; i < ARRAY_SIZE(e); ++i) {
     for (size_t k = 0; k < sizeof(e[0]); ++k) {
-      expected[j++] = (uint32_t)e[i] >> (CHAR_BIT * k);
+      expected[j++] = (unsigned char)((uint32_t)e[i] >> (CHAR_BIT * k));
     }
   };
 
@@ -1235,7 +1235,7 @@ static void test30(ReaderType const rtype)
   Reader r;
   unsigned char data[LongDataSize];
   for (size_t n = 0; n < sizeof(data); ++n) {
-    data[n] = rand();
+    data[n] = (unsigned char)rand();
   }
   make_file(rtype, data, sizeof(data), 1);
 
@@ -1261,7 +1261,7 @@ static void test31(ReaderType const rtype)
   Reader r;
   unsigned char data[LongDataSize];
   for (size_t n = 0; n < sizeof(data); ++n) {
-    data[n] = rand();
+    data[n] = (unsigned char)rand();
   }
   make_file(rtype, data, sizeof(data), 1);
 
