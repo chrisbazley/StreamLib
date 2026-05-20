@@ -21,6 +21,7 @@
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 10-Jul-20: Added unsigned 32-bit read function.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 20-May-26: Avoid using unary - on an unsigned type.
 */
 
 /* ISO library header files */
@@ -58,7 +59,7 @@ bool reader_fread_int32(int32_t *const ptr, Reader *const reader)
     *ptr = val;
   } else {
     /* Beware that -INT32_MIN may be unrepresentable as int32_t. */
-    uint32_t const neg = -val;
+    uint32_t const neg = 0u - val;
     if (neg <= INT32_MAX) {
       *ptr = -(int32_t)neg;
     } else {
