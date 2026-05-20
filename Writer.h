@@ -26,6 +26,7 @@ History:
   CJB: 26-Oct-19: Clarify documentation of WriterWriteFn.
   CJB: 10-Jul-20: Added signed 16-bit and unsigned 32-bit write functions.
   CJB: 28-Jul-22: Removed redundant use of the 'extern' keyword.
+  CJB: 20-May-26: Use bool type for bitfields.
 */
 
 #ifndef Writer_h
@@ -65,7 +66,7 @@ typedef struct {
 } WriterFns;
 
 typedef struct Writer {
-  unsigned int error : 1, repos : 1;
+  bool error : 1, repos : 1;
   void *data;
   long int fpos;
   long int flen;
