@@ -21,6 +21,7 @@
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 10-Jul-20: Added signed 16-bit write function.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 20-May-26: Explicit narrowing conversions.
 */
 
 /* ISO library header files */
@@ -34,7 +35,10 @@
 
 bool writer_fwrite_uint16(uint16_t const val, Writer *const writer)
 {
-  unsigned char const bytes[sizeof(val)] = {val, val >> 8};
+  unsigned char const bytes[sizeof(val)] = {
+    (unsigned char)val,
+    (unsigned char)(val >> 8)
+  };
   return writer_fwrite(&bytes, sizeof(bytes), 1, writer) == 1;
 }
 
