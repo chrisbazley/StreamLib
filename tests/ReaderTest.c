@@ -992,8 +992,8 @@ static void test23(ReaderType const rtype)
 
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR) * 2l, SEEK_CUR));
-  assert(reader_ftell(&r) == (strlen(TEST_STR) * 2l) + 1l);
+  assert(!reader_fseek(&r, (long)strlen(TEST_STR) * 2l, SEEK_CUR));
+  assert(reader_ftell(&r) == ((strlen(TEST_STR) * 2l) + 1l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
   assert(reader_fgetc(&r) == EOF);
@@ -1009,7 +1009,7 @@ static void test23(ReaderType const rtype)
     rewind_file(rtype);
     assert(f);
     assert(fgetc(&*f) == TEST_STR[0]);
-    assert(!fseek(&*f, strlen(TEST_STR) * 2l, SEEK_CUR));
+    assert(!fseek(&*f, (long)strlen(TEST_STR) * 2l, SEEK_CUR));
     assert(ftell(&*f) == (strlen(TEST_STR) * 2l) + 1l);
     assert(!feof(&*f));
     assert(!ferror(&*f));
@@ -1068,7 +1068,7 @@ static void test25(ReaderType const rtype)
 
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR) - 1l, SEEK_SET));
+  assert(!reader_fseek(&r, (long)strlen(TEST_STR) - 1l, SEEK_SET));
   assert(reader_ftell(&r) == strlen(TEST_STR) - 1l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
@@ -1093,7 +1093,7 @@ static void test26(ReaderType const rtype)
 
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR) * 2l, SEEK_SET));
+  assert(!reader_fseek(&r, (long)strlen(TEST_STR) * 2l, SEEK_SET));
   assert(reader_ftell(&r) == strlen(TEST_STR) * 2l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
@@ -1110,7 +1110,7 @@ static void test26(ReaderType const rtype)
     rewind_file(rtype);
     assert(f);
     assert(fgetc(&*f) == TEST_STR[0]);
-    assert(!fseek(&*f, strlen(TEST_STR) * 2l, SEEK_SET));
+    assert(!fseek(&*f, (long)strlen(TEST_STR) * 2l, SEEK_SET));
     assert(ftell(&*f) == strlen(TEST_STR) * 2l);
     assert(!feof(&*f));
     assert(!ferror(&*f));
