@@ -411,6 +411,7 @@ static bool init_writer(WriterType const wtype, Writer *const w,
                         long int min_size, int const handle)
 {
   bool success = true;
+  assert(min_size >= 0);
   assert(handle >= 0);
   assert(handle < NumberOfWriters);
   printf("Init writer with size %ld and handle %d\n", min_size, handle);
@@ -441,12 +442,12 @@ static bool init_writer(WriterType const wtype, Writer *const w,
 #endif
 
   case WRITERTYPE_MEM:
-    assert(min_size <= SIZE_MAX);
+    assert((unsigned long)min_size <= SIZE_MAX);
     success = writer_mem_init(w, bh, (size_t)min_size);
     break;
 
   case WRITERTYPE_HEAP:
-    assert(min_size <= SIZE_MAX);
+    assert((unsigned long)min_size <= SIZE_MAX);
     success = writer_heap_init(w, &buffers[handle], (size_t)min_size);
     break;
 
