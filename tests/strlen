@@ -29,13 +29,11 @@
 /* Local headers */
 #include "Tests.h"
 
-#define PATH "<Wimp$ScrapDir>.ReaderTest"
-#define TEST_STR "qwerty"
-
 enum {
   NumberOfReaders = 5,
   NumReads = 7,
   Marker = 56,
+  ForwardOffset = 5,
 };
 
 static void test1(void)
@@ -378,8 +376,8 @@ static void test25(void)
   Reader r;
   reader_null_init(&r);
 
-  assert(!reader_fseek(&r, strlen(TEST_STR) - 1l, SEEK_SET));
-  assert(reader_ftell(&r) == strlen(TEST_STR) - 1l);
+  assert(!reader_fseek(&r, ForwardOffset, SEEK_SET));
+  assert(reader_ftell(&r) == ForwardOffset);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
 
