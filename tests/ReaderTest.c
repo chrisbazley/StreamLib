@@ -993,7 +993,7 @@ static void test23(ReaderType const rtype)
   assert(reader_fgetc(&r) == TEST_STR[0]);
 
   assert(!reader_fseek(&r, (long)strlen(TEST_STR) * 2l, SEEK_CUR));
-  assert(reader_ftell(&r) == ((strlen(TEST_STR) * 2l) + 1l);
+  assert(reader_ftell(&r) == (strlen(TEST_STR) * 2l) + 1l);
   assert(!reader_feof(&r));
   assert(!reader_ferror(&r));
   assert(reader_fgetc(&r) == EOF);
