@@ -22,6 +22,7 @@
   CJB: 10-Jul-20: Added unsigned 32-bit read function.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 20-May-26: Avoid using unary - on an unsigned type.
+                  Use CHAR_BIT instead of magic numbers.
 */
 
 /* ISO library header files */
@@ -42,8 +43,10 @@ bool reader_fread_uint32(uint32_t *const ptr, Reader *const reader)
     return false;
   }
 
-  *ptr = bytes[0] | ((uint32_t)bytes[1] << 8) | ((uint32_t)bytes[2] << 16) |
-         ((uint32_t)bytes[3] << 24);
+  *ptr = bytes[0] |
+         ((uint32_t)bytes[1] << CHAR_BIT) |
+         ((uint32_t)bytes[2] << (CHAR_BIT * 2)) |
+         ((uint32_t)bytes[3] << (CHAR_BIT * 3));
 
   return true;
 }
