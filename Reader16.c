@@ -21,6 +21,10 @@
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 10-Jul-20: Added signed 16-bit read function.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 20-May-26: Use stdint types consistently instead of
+                  mixed with int and unsigned int to stop
+                  narrowing warnings. Avoid using unary -
+                  on an unsigned type.
 */
 
 /* ISO library header files */
@@ -52,15 +56,15 @@ bool reader_fread_int16(int16_t *const ptr, Reader *const reader)
   if (!reader_fread_uint16(&val, reader)) {
     return false;
   }
-  unsigned int const v2 = val;
+  uint16_t const v2 = val;
 
   if (v2 <= INT16_MAX) {
     *ptr = v2;
   } else {
     /* Beware that -INT16_MIN may be unrepresentable as int16_t. */
-    unsigned int const neg = -v2;
+    uint16_t const neg = 0u - v2;
     if (neg <= INT16_MAX) {
-      *ptr = -(int)neg;
+      *ptr = -(int16_t)neg;
     } else {
       *ptr = INT16_MIN;
     }
