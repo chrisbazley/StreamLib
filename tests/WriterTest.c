@@ -426,7 +426,8 @@ static bool init_writer(WriterType const wtype, Writer *const w,
 
   case WRITERTYPE_GKEY:
     assert(fh);
-    success = writer_gkey_init(w, HistoryLog2, min_size, &*fh);
+    assert(min_size <= LONG_MAX);
+    success = writer_gkey_init(w, HistoryLog2, (long)min_size, &*fh);
     break;
 
   case WRITERTYPE_GKC:
