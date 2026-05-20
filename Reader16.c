@@ -24,7 +24,8 @@
   CJB: 20-May-26: Use stdint types consistently instead of
                   mixed with int and unsigned int to stop
                   narrowing warnings. Avoid using unary -
-                  on an unsigned type.
+                  on an unsigned type. Use CHAR_BIT instead
+                  of a magic number.
 */
 
 /* ISO library header files */
@@ -45,7 +46,7 @@ bool reader_fread_uint16(uint16_t *const ptr, Reader *const reader)
     return false;
   }
 
-  *ptr = bytes[0] | ((uint16_t)bytes[1] << 8);
+  *ptr = bytes[0] | ((uint16_t)bytes[1] << CHAR_BIT);
 
   return true;
 }
