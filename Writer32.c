@@ -21,6 +21,8 @@
   CJB: 05-Nov-19: Split into a separate compilation unit.
   CJB: 10-Jul-20: Added unsigned 32-bit write function.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 20-May-26: Explicit narrowing conversions.
+                  Use CHAR_BIT instead of magic numbers.
 */
 
 /* ISO library header files */
@@ -34,8 +36,12 @@
 
 bool writer_fwrite_uint32(uint32_t const val, Writer *const writer)
 {
-  unsigned char const bytes[sizeof(val)] = {val, val >> 8, val >> 16,
-                                            val >> 24};
+  unsigned char const bytes[sizeof(val)] = {
+    (unsigned char)val,
+    (unsigned char)(val >> CHAR_BIT),
+    (unsigned char)(val >> (CHAR_BIT * 2)),
+    (unsigned char)(val >> (CHAR_BIT * 3))
+  };
   return writer_fwrite(&bytes, sizeof(bytes), 1, writer) == 1;
 }
 
