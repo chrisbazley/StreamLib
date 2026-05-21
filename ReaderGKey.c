@@ -101,13 +101,14 @@ static long int read_core(_Optional char *ptr,
     const ptrdiff_t bytes_avail =
       (const char *)data->state.params.out_buffer - data->state.out_ptr;
     DEBUG_VERBOSEF("%td bytes are available (need %ld)\n", bytes_avail, n);
-    const unsigned long copy_size = n > bytes_avail ? bytes_avail : n;
+    assert(bytes_avail == (long)bytes_avail);
+    const long int copy_size = n > bytes_avail ? (long)bytes_avail : n;
 
     if (copy_size) {
       if (ptr) {
         DEBUG_VERBOSEF("Copying %ld of %td bytes from output buffer\n",
                        copy_size, bytes_avail);
-        assert(copy_size == (size_t)copy_size);
+        assert((unsigned long)copy_size == (size_t)copy_size);
         memcpy(&*ptr, data->state.out_ptr, (size_t)copy_size);
         ptr = ptr + copy_size;
       }
@@ -262,8 +263,9 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
       assert(data->state.out_ptr >= data->buffer.out);
       ptrdiff_t const out_buf_used = data->state.out_ptr - data->buffer.out;
       DEBUGF("%td bytes of buffer were already output\n", out_buf_used);
+      assert(out_buf_used == (long)out_buf_used);
 
-      long int const buf_start = data->state.out_total - out_buf_used;
+      long int const buf_start = data->state.out_total - (long)out_buf_used;
       DEBUGF("Buffer starts at offset %ld\n", buf_start);
 
       if (reader->fpos >= buf_start) {
@@ -302,7 +304,7 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
   assert((unsigned long)actual_bytes_to_read == bytes_to_read);
 
   if (avail < actual_bytes_to_read) {
-    DEBUGF("Can't read %ld bytes: end of file at %ld\n", bytes_to_read, avail);
+    DEBUGF("Can't read %zu bytes: end of file at %ld\n", bytes_to_read, avail);
 
     actual_bytes_to_read = avail;
     reader->eof = 1;
