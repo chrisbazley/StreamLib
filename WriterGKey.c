@@ -210,7 +210,7 @@ static long int write_core(_Optional char const *ptr,
   WriterGKeyData *const data = writer->data;
   assert(data != NULL);
 
-  unsigned long bytes_written = 0;
+  long bytes_written = 0;
   while (bytes_written < bytes_to_write) {
     /* If there is still space for uncompressed data in the input buffer
        then copy it from the caller's buffer. */
