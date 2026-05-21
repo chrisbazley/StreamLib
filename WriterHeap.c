@@ -23,6 +23,7 @@
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
+  CJB: 21-May-26: Update assertions for writer position and size checks.
 */
 
 /* ISO library header files */
@@ -99,22 +100,22 @@ static size_t writer_heap_fwrite(void const *ptr, size_t const size,
   WriterHeapData *const data = writer->data;
   assert(data != NULL);
   assert(writer->fpos >= 0);
-  assert((unsigned long)writer->fpos <= ULONG_MAX - size);
+  assert(size <= (unsigned long)LONG_MAX);
+  assert(writer->fpos <= LONG_MAX - (long)size);
 
   size_t const buffer_size = data->buffer_size;
   assert(buffer_size >= (unsigned long)writer->flen);
 
-  unsigned long const end = writer->fpos + size;
-  if (end > SIZE_MAX) {
+  if ((unsigned long)writer->fpos > SIZE_MAX - size) {
     DEBUGF("File position %ld or data size %zu is too big\n", writer->fpos,
            size);
 
     writer->error = 1;
     return 0;
   }
-
-  if (end > buffer_size) {
-    size_t newsize = (size_t)end;
+  
+  size_t newsize = (size_t)writer->fpos + size;
+  if (newsize > buffer_size) {
     if ((buffer_size <= (SIZE_MAX / 2)) && ((buffer_size * 2) >= newsize)) {
       newsize = buffer_size * 2;
     }
