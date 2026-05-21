@@ -27,6 +27,7 @@
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
+  CJB: 21-May-26: Refactored read_core to use long int for byte counts
 */
 
 /* ISO library header files */
@@ -81,11 +82,11 @@ static void rewind_reinit(ReaderGKeyData *const data)
   data->state.params.in_size = 0;
 }
 
-static unsigned long read_core(_Optional char *ptr,
-                               unsigned long const bytes_to_read,
-                               Reader *const reader)
+static long int read_core(_Optional char *ptr,
+                          long int const bytes_to_read,
+                          Reader *const reader)
 {
-  unsigned long bytes_read = 0;
+  long int bytes_read = 0;
 
   assert(reader != NULL);
   ReaderGKeyData *const data = reader->data;
@@ -96,17 +97,18 @@ static unsigned long read_core(_Optional char *ptr,
     /* If there is already decompressed data in the output buffer
        then copy that to the caller's buffer. */
     assert((const char *)data->state.params.out_buffer >= data->state.out_ptr);
-    unsigned long const n = bytes_to_read - bytes_read;
-    const size_t bytes_avail =
+    long int const n = bytes_to_read - bytes_read;
+    const ptrdiff_t bytes_avail =
       (const char *)data->state.params.out_buffer - data->state.out_ptr;
-    DEBUG_VERBOSEF("%zu bytes are available (need %lu)\n", bytes_avail, n);
-    const size_t copy_size = (size_t)(n > bytes_avail ? bytes_avail : n);
+    DEBUG_VERBOSEF("%td bytes are available (need %ld)\n", bytes_avail, n);
+    const unsigned long copy_size = n > bytes_avail ? bytes_avail : n;
 
     if (copy_size) {
       if (ptr) {
-        DEBUG_VERBOSEF("Copying %zu of %zu bytes from output buffer\n",
+        DEBUG_VERBOSEF("Copying %ld of %td bytes from output buffer\n",
                        copy_size, bytes_avail);
-        memcpy(&*ptr, data->state.out_ptr, copy_size);
+        assert(copy_size == (size_t)copy_size);
+        memcpy(&*ptr, data->state.out_ptr, (size_t)copy_size);
         ptr = ptr + copy_size;
       }
       data->state.out_ptr += copy_size;
@@ -116,7 +118,7 @@ static unsigned long read_core(_Optional char *ptr,
     /* If we didn't get enough data yet then decompress some more. */
     if (bytes_read < bytes_to_read) {
       DEBUG_VERBOSEF(
-        "Need to refill output buffer (only got %lu of %lu bytes)\n",
+        "Need to refill output buffer (only got %ld of %ld bytes)\n",
         bytes_read, bytes_to_read);
 
       bool in_pending = false;
@@ -258,8 +260,8 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
 
     if (reader->fpos < data->state.out_total) {
       assert(data->state.out_ptr >= data->buffer.out);
-      size_t const out_buf_used = data->state.out_ptr - data->buffer.out;
-      DEBUGF("%zu bytes of buffer were already output\n", out_buf_used);
+      ptrdiff_t const out_buf_used = data->state.out_ptr - data->buffer.out;
+      DEBUGF("%td bytes of buffer were already output\n", out_buf_used);
 
       long int const buf_start = data->state.out_total - out_buf_used;
       DEBUGF("Buffer starts at offset %ld\n", buf_start);
@@ -281,9 +283,9 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
       }
     }
 
-    unsigned long const bytes_to_skip = reader->fpos - data->state.out_total;
-    DEBUGF("Skipping %lu bytes\n", bytes_to_skip);
-    unsigned long const nskipped = read_core(NULL, bytes_to_skip, reader);
+    long int const bytes_to_skip = reader->fpos - data->state.out_total;
+    DEBUGF("Skipping %ld bytes\n", bytes_to_skip);
+    long int const nskipped = read_core(NULL, bytes_to_skip, reader);
 
     assert(nskipped <= bytes_to_skip);
     if (nskipped != bytes_to_skip) {
@@ -294,16 +296,21 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
   }
 
   /* Don't try to read more bytes than advertised as available. */
-  unsigned long const avail = data->state.out_len - data->state.out_total;
-  if (avail < bytes_to_read) {
-    DEBUGF("Can't read %zu bytes: end of file at %lu\n", bytes_to_read, avail);
+  assert(data->state.out_len >= data->state.out_total);
+  long int const avail = data->state.out_len - data->state.out_total,
+                 actual_bytes_to_read = (long)bytes_to_read;
+  assert((size_t)actual_bytes_to_read == bytes_to_read);
 
-    bytes_to_read = (size_t)avail;
+  if (avail < actual_bytes_to_read) {
+    DEBUGF("Can't read %ld bytes: end of file at %ld\n", bytes_to_read, avail);
+
+    actual_bytes_to_read = avail;
     reader->eof = 1;
   }
 
-  unsigned long const nread = read_core(ptr, bytes_to_read, reader);
-  assert(nread <= bytes_to_read);
+  long int const nread = read_core(ptr, actual_bytes_to_read, reader);
+  assert(nread <= actual_bytes_to_read);
+  assert(nread == (size_t)nread);
   return (size_t)nread;
 }
 
