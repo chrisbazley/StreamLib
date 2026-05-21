@@ -27,7 +27,7 @@
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
-  CJB: 21-May-26: Refactored read_core to use long int for byte counts
+  CJB: 21-May-26: Refactored read_core to use long int for byte counts.
 */
 
 /* ISO library header files */
@@ -100,6 +100,8 @@ static long int read_core(_Optional char *ptr,
     long int const n = bytes_to_read - bytes_read;
     const ptrdiff_t bytes_avail =
       (const char *)data->state.params.out_buffer - data->state.out_ptr;
+    assert(bytes_avail >= 0);
+    assert(bytes_avail <= BUFFER_SIZE);
     DEBUG_VERBOSEF("%td bytes are available (need %ld)\n", bytes_avail, n);
     assert(bytes_avail == (long)bytes_avail);
     const long int copy_size = n > bytes_avail ? (long)bytes_avail : n;
