@@ -297,8 +297,8 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
 
   /* Don't try to read more bytes than advertised as available. */
   assert(data->state.out_len >= data->state.out_total);
-  long int const avail = data->state.out_len - data->state.out_total,
-                 actual_bytes_to_read = (long)bytes_to_read;
+  long int const avail = data->state.out_len - data->state.out_total;
+  long int actual_bytes_to_read = (long)bytes_to_read;
   assert((size_t)actual_bytes_to_read == bytes_to_read);
 
   if (avail < actual_bytes_to_read) {
