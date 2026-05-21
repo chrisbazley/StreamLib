@@ -29,6 +29,7 @@
   CJB: 03-Apr-21: Assert that the specified minimum size is not negative.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
+  CJB: 21-May-26: Refactored write_core to use long int for byte counts.
 */
 
 /* ISO library header files */
@@ -101,40 +102,40 @@ static void flush(WriterGKeyData *const data)
 }
 
 static void write_core(_Optional char const *ptr,
-                       unsigned long const bytes_to_write, Writer *const writer)
+                       long int const bytes_to_write, Writer *const writer)
 {
   assert(writer != NULL);
   WriterGKeyData *const data = writer->data;
   assert(data != NULL);
 
-  unsigned long bytes_written = 0;
+  long bytes_written = 0;
   while (bytes_written < bytes_to_write) {
     /* If there is still space for uncompressed data in the input buffer
        then copy it from the caller's buffer. */
     assert((const char *)data->state.params.in_buffer <= data->state.in_ptr);
-    unsigned long const n = bytes_to_write - bytes_written;
-    const size_t space_used =
+    long const n = bytes_to_write - bytes_written;
+    const ptrdiff_t space_used =
       data->state.in_ptr - (const char *)data->state.params.in_buffer;
-
-    assert(space_used <= sizeof(data->buffer.in));
-    const size_t space_avail = sizeof(data->buffer.in) - space_used;
-    const size_t copy_size = n > space_avail ? space_avail : (size_t)n;
-
+    assert(space_used >= 0);
+    assert(space_used <= BUFFER_SIZE);
+    const long int space_avail = BUFFER_SIZE - (long)space_used,
+                   copy_size = n > space_avail ? space_avail : n;
+    assert((size_t)copy_size == (unsigned long)copy_size);
     if (copy_size) {
       if (ptr) {
-        DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n", copy_size,
+        DEBUG_VERBOSEF("Copying %ld to input buffer of %ld bytes\n", copy_size,
                        space_avail);
-        memcpy(data->state.in_ptr, &*ptr, copy_size);
+        memcpy(data->state.in_ptr, &*ptr, (size_t)copy_size);
         ptr = ptr + copy_size;
       } else {
-        DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n", copy_size,
+        DEBUG_VERBOSEF("Zeroing %ld in input buffer of %ld bytes\n", copy_size,
                        space_avail);
-        memset(data->state.in_ptr, 0, copy_size);
+        memset(data->state.in_ptr, 0, (size_t)copy_size);
       }
       data->state.in_ptr += copy_size;
       bytes_written += copy_size;
     }
-    DEBUG_VERBOSEF("Put %lu of %lu bytes\n", bytes_written, bytes_to_write);
+    DEBUG_VERBOSEF("Put %ld of %ld bytes\n", bytes_written, bytes_to_write);
 
     /* If we didn't have room to write all of the data then
        empty the input buffer. */
@@ -154,8 +155,8 @@ static bool cleanup(Writer *const writer)
   long int const min_size = data->state.min_size;
 
   if (flen < min_size) {
-    unsigned long const nzeros = min_size - flen;
-    DEBUGF("Writing %lu trailing zeros to reach min size %ld\n", nzeros,
+    long const nzeros = min_size - flen;
+    DEBUGF("Writing %ld trailing zeros to reach min size %ld\n", nzeros,
            min_size);
 
     write_core(NULL, nzeros, writer);
@@ -194,12 +195,13 @@ static size_t writer_gkc_fwrite(void const *const ptr,
       return 0;
     }
 
-    unsigned long const bytes_to_skip = writer->fpos - writer->flen;
-    DEBUGF("Skipping %lu bytes\n", bytes_to_skip);
+    long const bytes_to_skip = writer->fpos - writer->flen;
+    DEBUGF("Skipping %ld bytes\n", bytes_to_skip);
     write_core(NULL, bytes_to_skip, writer);
   }
 
-  write_core(ptr, bytes_to_write, writer);
+  assert(bytes_to_write <= LONG_MAX);
+  write_core(ptr, (long)bytes_to_write, writer);
   return bytes_to_write;
 }
 
