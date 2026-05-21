@@ -27,6 +27,8 @@
   CJB: 07-Jun-20: Debugging output is less verbose by default.
   CJB: 28-Nov-20: Initialize struct using compound literal assignment.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
+  CJB: 21-May-26: Explicitly convert the return value of fwrite_fn
+                  to long int to silence a compiler warning.
 */
 
 /* ISO library header files */
@@ -72,8 +74,8 @@ size_t writer_fwrite(void const *const ptr, size_t const size,
         writer->error = 1;
       } else {
         size_t const n = writer->fns.fwrite_fn(ptr, bytes_to_write, writer);
-
-        writer->fpos += n;
+        assert(n <= (unsigned long)(LONG_MAX - writer->fpos));
+        writer->fpos += (long)n;
         if (writer->fpos > writer->flen) {
           writer->flen = writer->fpos;
         }
