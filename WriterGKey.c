@@ -40,6 +40,7 @@
                   size actually written to the file header, are not negative.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
+  CJB: 21-May-26: Refactored write_core to use long int for byte counts.
 */
 
 /* ISO library header files */
@@ -201,9 +202,9 @@ static bool flush(WriterGKeyData *const data)
   return true;
 }
 
-static unsigned long write_core(_Optional char const *ptr,
-                                unsigned long const bytes_to_write,
-                                Writer *const writer)
+static long int write_core(_Optional char const *ptr,
+                           long int const bytes_to_write,
+                           Writer *const writer)
 {
   assert(writer != NULL);
   WriterGKeyData *const data = writer->data;
@@ -214,29 +215,29 @@ static unsigned long write_core(_Optional char const *ptr,
     /* If there is still space for uncompressed data in the input buffer
        then copy it from the caller's buffer. */
     assert((const char *)data->state.params.in_buffer <= data->state.in_ptr);
-    unsigned long const n = bytes_to_write - bytes_written;
-    const size_t space_used =
+    long int const n = bytes_to_write - bytes_written;
+    const ptrdiff_t space_used =
       data->state.in_ptr - (const char *)data->state.params.in_buffer;
-
-    assert(space_used <= sizeof(data->buffer.in));
-    const size_t space_avail = sizeof(data->buffer.in) - space_used;
-    const size_t copy_size = n > space_avail ? space_avail : (size_t)n;
+    assert(space_used >= 0);
+    assert(space_used <= BUFFER_SIZE);
+    long int const space_avail = BUFFER_SIZE - space_used,
+                   copy_size = n > space_avail ? space_avail : n;
 
     if (copy_size) {
       if (ptr) {
-        DEBUG_VERBOSEF("Copying %zu to input buffer of %zu bytes\n", copy_size,
+        DEBUG_VERBOSEF("Copying %zu to input buffer of %ld bytes\n", copy_size,
                        space_avail);
-        memcpy(data->state.in_ptr, &*ptr, copy_size);
+        memcpy(data->state.in_ptr, &*ptr, (size_t)copy_size);
         ptr = ptr + copy_size;
       } else {
-        DEBUG_VERBOSEF("Zeroing %zu in input buffer of %zu bytes\n", copy_size,
+        DEBUG_VERBOSEF("Zeroing %zu in input buffer of %ld bytes\n", copy_size,
                        space_avail);
-        memset(data->state.in_ptr, 0, copy_size);
+        memset(data->state.in_ptr, 0, (size_t)copy_size);
       }
       data->state.in_ptr += copy_size;
       bytes_written += copy_size;
     }
-    DEBUG_VERBOSEF("Put %lu of %lu bytes\n", bytes_written, bytes_to_write);
+    DEBUG_VERBOSEF("Put %ld of %ld bytes\n", bytes_written, bytes_to_write);
 
     /* If we didn't have room to write all of the data then
        empty the input buffer. */
@@ -262,8 +263,8 @@ static bool cleanup(Writer *const writer)
   long int const min_size = data->state.min_size;
 
   if (flen < min_size) {
-    unsigned long const nzeros = min_size - flen;
-    DEBUGF("Writing %lu trailing zeros to reach min size %ld\n", nzeros,
+    long int const nzeros = min_size - flen;
+    DEBUGF("Writing %ld trailing zeros to reach min size %ld\n", nzeros,
            min_size);
 
     if (write_core(NULL, nzeros, writer) != nzeros) {
@@ -314,9 +315,9 @@ static size_t writer_gkey_fwrite(void const *const ptr,
       return 0;
     }
 
-    unsigned long const bytes_to_skip = writer->fpos - writer->flen;
-    DEBUGF("Skipping %lu bytes\n", bytes_to_skip);
-    unsigned long const nskipped = write_core(NULL, bytes_to_skip, writer);
+    long int const bytes_to_skip = writer->fpos - writer->flen;
+    DEBUGF("Skipping %ld bytes\n", bytes_to_skip);
+    long int const nskipped = write_core(NULL, bytes_to_skip, writer);
 
     assert(nskipped <= bytes_to_skip);
     if (nskipped != bytes_to_skip) {
@@ -324,8 +325,8 @@ static size_t writer_gkey_fwrite(void const *const ptr,
     }
   }
 
-  unsigned long const nwritten = write_core(ptr, bytes_to_write, writer);
-  assert(nwritten <= bytes_to_write);
+  long int const nwritten = write_core(ptr, bytes_to_write, writer);
+  assert((unsigned long)nwritten <= bytes_to_write);
   return (size_t)nwritten;
 }
 
