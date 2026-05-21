@@ -216,21 +216,22 @@ static long int write_core(_Optional char const *ptr,
        then copy it from the caller's buffer. */
     assert((const char *)data->state.params.in_buffer <= data->state.in_ptr);
     long int const n = bytes_to_write - bytes_written;
+    assert(n >= 0);
     const ptrdiff_t space_used =
       data->state.in_ptr - (const char *)data->state.params.in_buffer;
     assert(space_used >= 0);
     assert(space_used <= BUFFER_SIZE);
-    long int const space_avail = BUFFER_SIZE - space_used,
+    long int const space_avail = BUFFER_SIZE - (long)space_used,
                    copy_size = n > space_avail ? space_avail : n;
-
+    assert((size_t)copy_size == (unsigned long)copy_size);
     if (copy_size) {
       if (ptr) {
-        DEBUG_VERBOSEF("Copying %zu to input buffer of %ld bytes\n", copy_size,
+        DEBUG_VERBOSEF("Copying %ld to input buffer of %ld bytes\n", copy_size,
                        space_avail);
         memcpy(data->state.in_ptr, &*ptr, (size_t)copy_size);
         ptr = ptr + copy_size;
       } else {
-        DEBUG_VERBOSEF("Zeroing %zu in input buffer of %ld bytes\n", copy_size,
+        DEBUG_VERBOSEF("Zeroing %ld in input buffer of %ld bytes\n", copy_size,
                        space_avail);
         memset(data->state.in_ptr, 0, (size_t)copy_size);
       }
@@ -325,7 +326,8 @@ static size_t writer_gkey_fwrite(void const *const ptr,
     }
   }
 
-  long int const nwritten = write_core(ptr, bytes_to_write, writer);
+  assert(bytes_to_write <= LONG_MAX);
+  long int const nwritten = write_core(ptr, (long)bytes_to_write, writer);
   assert((unsigned long)nwritten <= bytes_to_write);
   return (size_t)nwritten;
 }
