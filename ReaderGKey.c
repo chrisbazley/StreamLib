@@ -299,7 +299,7 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
   assert(data->state.out_len >= data->state.out_total);
   long int const avail = data->state.out_len - data->state.out_total;
   long int actual_bytes_to_read = (long)bytes_to_read;
-  assert((size_t)actual_bytes_to_read == bytes_to_read);
+  assert((unsigned long)actual_bytes_to_read == bytes_to_read);
 
   if (avail < actual_bytes_to_read) {
     DEBUGF("Can't read %ld bytes: end of file at %ld\n", bytes_to_read, avail);
@@ -310,7 +310,7 @@ static size_t reader_gkey_fread(void *const ptr, size_t bytes_to_read,
 
   long int const nread = read_core(ptr, actual_bytes_to_read, reader);
   assert(nread <= actual_bytes_to_read);
-  assert(nread == (size_t)nread);
+  assert((unsigned long)nread == (size_t)nread);
   return (size_t)nread;
 }
 
