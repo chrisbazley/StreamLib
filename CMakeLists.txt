@@ -22,8 +22,9 @@ set(SOURCES Reader.c ReaderRaw.c ReaderGKey.c ReaderMem.c ReaderNull.c
              Writer.c WriterRaw.c WriterGKey.c WriterMem.c WriterNull.c
              WriterHeap.c WriterGKC.c WriterChar.c Writer16.c Writer32.c WriterSeek.c)
 file(GLOB PUBLIC_HEADERS "*.h")
+file(GLOB PRIVATE_HEADERS "Internal/*.h")
 
-add_library(Stream STATIC ${SOURCES} ${PUBLIC_HEADERS})
+add_library(Stream STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
 target_link_libraries(Stream PRIVATE GKey)
 set_target_properties(Stream PROPERTIES
     PUBLIC_HEADER "${PUBLIC_HEADERS}"
