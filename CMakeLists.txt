@@ -35,11 +35,6 @@ target_include_directories(Stream PUBLIC .)
 
 target_compile_definitions(Stream PRIVATE
     $<$<CONFIG:Debug>:DEBUG_OUTPUT>
-    $<$<CONFIG:Release>:NDEBUG>
-)
-
-target_compile_options(Stream PRIVATE
-    $<$<CONFIG:Release>:-O3>
 )
 
 install(TARGETS Stream
