@@ -8,6 +8,7 @@ FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.
 FetchContent_MakeAvailable(GKey)
 
 set(CMAKE_C_STANDARD 99)
+set(CMAKE_XCODE_ATTRIBUTE_RUN_CLANG_STATIC_ANALYZER "YES")
 
 if(MSVC)
     # MSVC equivalent of -Wall -Wextra is /W4
