@@ -33,16 +33,22 @@ ARM Linker: (Error) Undefined symbol(s).
 ARM Linker:     Fortify_malloc, referred to from C:debug.StreamLib(ReaderGKey).
 ARM Linker:     Fortify_free, referred to from C:debug.StreamLib(ReaderGKey).
 ```
+
 Rebuilding the library
 ----------------------
-  You should ensure that the standard C library, GKeyLib, CBUtilLib and
-CBDebugLib (all three by the same author as StreamLib) are on your header
-include path (C$Path if using the supplied make files on RISC OS), otherwise
-the compiler won't be able to find the required header files. The dependency
-on CBDebugLib isn't very strong: it can be eliminated by modifying the make
-file so that the macro USE_CBDEBUG is no longer predefined.
+  If you have CMake, a build system generator, then you can use it to
+fetch libraries that are dependencies of this library and build the
+libraries and tests with minimal manual intervention.
 
-  Three make files are supplied:
+For example, use the following commands to build and test on Linux:
+```
+  cmake -G 'Unix Makefiles' -S . -B build
+  cd build
+  make
+  ctest
+```
+
+  Three make files are also supplied:
 
 - 'Makefile' is intended for use with GNU Make and the GNU C Compiler on Linux.
 - 'NMakefile' is intended for use with Acorn Make Utility (AMU) and the
@@ -95,6 +101,13 @@ built (e.g. foo.o instead of o.foo).
 files with .c and .h suffixes into subdirectories named 'c' and 'h' and
 remove those suffixes from their names. You probably also need to create
 'o', 'oz', 'd' and 'debug' subdirectories for compiler output.
+
+  You should ensure that the standard C library, GKeyLib, CBUtilLib and
+CBDebugLib (all three by the same author as StreamLib) are on your header
+include path (C$Path if using the supplied make files on RISC OS), otherwise
+the compiler won't be able to find the required header files. The dependency
+on CBDebugLib isn't very strong: it can be eliminated by modifying the make
+file so that the macro USE_CBDEBUG is no longer predefined.
 
 Licence and disclaimer
 ----------------------
