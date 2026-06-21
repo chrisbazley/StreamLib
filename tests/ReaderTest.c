@@ -174,7 +174,7 @@ static void rewind_file(ReaderType const rtype)
   case READERTYPE_RAW:
   case READERTYPE_GKEY:
     assert(f);
-    rewind(&*f);
+    assert(!fseek(&*f, 0L, SEEK_SET));
     break;
 
 #ifdef ACORN_FLEX
