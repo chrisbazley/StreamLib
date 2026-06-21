@@ -1111,7 +1111,7 @@ static void test22(WriterType const wtype)
   if (wtype == WRITERTYPE_RAW) {
     _Optional FILE *const fh = files[handle];
     assert(fh);
-    rewind(&*fh);
+    assert(!fseek(&*fh, 0L, SEEK_SET));
     assert(!ferror(&*fh));
     assert(fputc(TEST_STR[0], &*fh) == TEST_STR[0]);
     assert(fseek(&*fh, -2, SEEK_CUR));
@@ -1195,7 +1195,7 @@ static void test24(WriterType const wtype)
   if (wtype == WRITERTYPE_RAW) {
     _Optional FILE *const fh = files[handle];
     assert(fh);
-    rewind(&*fh);
+    assert(!fseek(&*fh, 0L, SEEK_SET));
     assert(fputc(TEST_STR[0], &*fh) == TEST_STR[0]);
     assert(fseek(&*fh, -1, SEEK_SET));
     /* Result depends on standard C library */
