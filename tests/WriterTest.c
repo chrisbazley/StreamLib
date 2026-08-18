@@ -263,24 +263,24 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
 
   switch (wtype) {
   case WRITERTYPE_RAW: {
-    FILE *const f = fopen(file_names[handle], "rb");
+    _Optional FILE *const f = fopen(file_names[handle], "rb");
     if (f == NULL)
       perror("Failed to open file");
     assert(f != NULL);
 
     if (size > 0) {
-      size_t const n = fread(data, size, nmemb, f);
+      size_t const n = fread(data, size, nmemb, &*f);
       printf("Read %zu of %zu\n", n, nmemb);
       if (n != nmemb) {
         perror("Failed to read from file");
       }
       assert(n == nmemb);
     }
-    assert(!fclose(f));
+    assert(!fclose(&*f));
   } break;
 
   case WRITERTYPE_GKEY: {
-    FILE *const f = fopen(file_names[handle], "rb");
+    _Optional FILE *const f = fopen(file_names[handle], "rb");
     if (f == NULL)
       perror("Failed to open file");
     assert(f != NULL);
@@ -300,13 +300,13 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
     GKeyParameters params = {.out_buffer = data, .out_size = size};
     do {
       char buf[BufferSize];
-      size_t const n = feof(f) ? 0 : fread(buf, 1, sizeof(buf), f);
+      size_t const n = feof(&*f) ? 0 : fread(buf, 1, sizeof(buf), &*f);
       printf("Read %zu of %zu\n", n, sizeof(buf));
       if (!n) {
-        assert(feof(f));
+        assert(feof(&*f));
         break;
       }
-      assert(!ferror(f));
+      assert(!ferror(&*f));
       params.in_buffer = buf;
       params.in_size = n;
       stat = gkeydecomp_decompress(&*decomp, &params);
@@ -315,7 +315,7 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
     assert(stat == GKeyStatus_OK);
     assert(params.out_size == 0);
     gkeydecomp_destroy(decomp);
-    assert(!fclose(f));
+    assert(!fclose(&*f));
   } break;
 
 #ifdef ACORN_FLEX
