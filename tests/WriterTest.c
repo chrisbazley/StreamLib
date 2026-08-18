@@ -289,7 +289,7 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
 
     uint32_t decomp_size = 0;
     for (size_t n = 0; n < 4; ++n) {
-      int const c = fgetc(f);
+      int const c = fgetc(&*f);
       assert(c >= 0);
       decomp_size |= (uint32_t)c << (CHAR_BIT * n);
     }
