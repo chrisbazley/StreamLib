@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     {"ReaderNull", ReaderNull_tests},
     {"Writer", Writer_tests},
     {"WriterGKC", WriterGKC_tests},
+    {"ReaderWriter", ReaderWriter_tests},
   };
 
   NOT_USED(argc);

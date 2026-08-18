@@ -77,5 +77,6 @@ extern void Reader_tests(void);
 extern void ReaderNull_tests(void);
 extern void Writer_tests(void);
 extern void WriterGKC_tests(void);
+extern void ReaderWriter_tests(void);
 
 #endif /* Tests_h */
