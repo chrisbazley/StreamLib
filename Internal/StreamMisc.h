@@ -60,6 +60,8 @@ History:
 
 #ifdef USE_OPTIONAL
 #include "Optional.h"
+#else
+#define _Optional
 #endif
 
 #define NOT_USED(x) ((void)(x))
