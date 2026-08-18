@@ -5,3 +5,7 @@ add_executable(StreamTests ${SOURCES} ${PRIVATE_HEADERS})
 target_link_libraries(StreamTests PRIVATE Stream)
 target_link_libraries(StreamTests PRIVATE GKey)
 add_test(NAME "StreamTests" COMMAND StreamTests)
+
+if(USE_OPTIONAL)
+    target_link_libraries(StreamTests PRIVATE CBUtil)
+endif()

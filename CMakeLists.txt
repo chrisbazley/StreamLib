@@ -1,13 +1,11 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 project(StreamLib C)
 
 include(FetchContent)
 
 FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.git GIT_TAG main)
 
-FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
-
-FetchContent_MakeAvailable(GKey CBUtil)
+FetchContent_MakeAvailable(GKey)
 
 option(USE_OPTIONAL "Enable the _Optional qualifier" OFF)
 option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
@@ -76,6 +74,14 @@ set_target_properties(Stream PROPERTIES
     PUBLIC_HEADER "${PUBLIC_HEADERS}"
     DEBUG_POSTFIX "dbg"
 )
+
+if(USE_OPTIONAL)
+    FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
+
+    FetchContent_MakeAvailable(CBUtil)
+
+    target_link_libraries(Stream PRIVATE CBUtil)
+endif()
 
 target_include_directories(Stream PUBLIC .)
 
