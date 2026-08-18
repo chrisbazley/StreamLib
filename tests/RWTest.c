@@ -130,14 +130,14 @@ static void test_gkey(void)
 {
   for (unsigned int history_log2 = 0; history_log2 < MaxHistoryLog2; ++history_log2)
   {
-    FILE *const file = tmpfile();
+    _Optional FILE *const file = tmpfile();
     assert(file != NULL);
 
     Writer writer;
-    assert(writer_gkey_init(&writer, history_log2, 0, file));
-    test_random_data(&writer, init_gkey_reader, file, history_log2);
+    assert(writer_gkey_init(&writer, history_log2, 0, &*file));
+    test_random_data(&writer, init_gkey_reader, &*file, history_log2);
 
-    assert(!fclose(file));
+    assert(!fclose(&*file));
   }
 }
 
