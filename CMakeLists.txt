@@ -5,7 +5,9 @@ include(FetchContent)
 
 FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.git GIT_TAG main)
 
-FetchContent_MakeAvailable(GKey)
+FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
+
+FetchContent_MakeAvailable(GKey CBUtil)
 
 option(USE_OPTIONAL "Enable the _Optional qualifier" OFF)
 option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
