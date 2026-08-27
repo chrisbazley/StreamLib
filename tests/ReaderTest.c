@@ -77,16 +77,17 @@ static void make_file(ReaderType const rtype, const void *const data,
     if (f == NULL)
       perror("Failed to open file");
     assert(f != NULL);
+    FILE *const raw_stream = &*f;
 
     /* Standard C library cannot necessarily read size=0 */
     if (size > 0) {
-      size_t const n = fwrite(data, size, nmemb, &*f);
+      size_t const n = fwrite(data, size, nmemb, raw_stream);
       if (n != nmemb) {
         perror("Failed to write to file");
       }
       assert(n == nmemb);
     }
-    f = freopen(file_name, "rb", &*f);
+    f = freopen(file_name, "rb", raw_stream);
     assert(f != NULL);
     break;
 
@@ -96,13 +97,14 @@ static void make_file(ReaderType const rtype, const void *const data,
     if (f == NULL)
       perror("Failed to open file");
     assert(f != NULL);
+    FILE *const gkey_stream = &*f;
 
     size *= nmemb;
 
-    assert(fputc(size & UCHAR_MAX, &*f) >= 0);
-    assert(fputc((size >> CHAR_BIT) & UCHAR_MAX, &*f) >= 0);
-    assert(fputc((size >> (CHAR_BIT * 2)) & UCHAR_MAX, &*f) >= 0);
-    assert(fputc((size >> (CHAR_BIT * 3)) & UCHAR_MAX, &*f) >= 0);
+    assert(fputc(size & UCHAR_MAX, gkey_stream) >= 0);
+    assert(fputc((size >> CHAR_BIT) & UCHAR_MAX, gkey_stream) >= 0);
+    assert(fputc((size >> (CHAR_BIT * 2)) & UCHAR_MAX, gkey_stream) >= 0);
+    assert(fputc((size >> (CHAR_BIT * 3)) & UCHAR_MAX, gkey_stream) >= 0);
     {
       _Optional GKeyComp *const comp = gkeycomp_make(HistoryLog2);
       GKeyStatus stat;
@@ -115,8 +117,8 @@ static void make_file(ReaderType const rtype, const void *const data,
         stat = gkeycomp_compress(&*comp, &params);
         /* Standard C library cannot necessarily read size=0 */
         if (sizeof(buf) - params.out_size > 0) {
-          assert(f);
-          size_t const n = fwrite(buf, sizeof(buf) - params.out_size, 1, &*f);
+          size_t const n =
+            fwrite(buf, sizeof(buf) - params.out_size, 1, gkey_stream);
           if (n != 1) {
             perror("Failed to write to file");
           }
@@ -128,8 +130,7 @@ static void make_file(ReaderType const rtype, const void *const data,
 
       gkeycomp_destroy(comp);
     }
-    assert(f != NULL);
-    f = freopen(file_name, "rb", &*f);
+    f = freopen(file_name, "rb", gkey_stream);
     assert(f != NULL);
     break;
 
@@ -964,16 +965,17 @@ static void test22(ReaderType const rtype)
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
     assert(f);
-    assert(!ferror(&*f));
-    assert(fgetc(&*f) == TEST_STR[0]);
-    assert(fseek(&*f, -2, SEEK_CUR));
+    FILE *const stream = &*f;
+    assert(!ferror(stream));
+    assert(fgetc(stream) == TEST_STR[0]);
+    assert(fseek(stream, -2, SEEK_CUR));
     /* Result depends on standard C library */
 #ifdef ACORN_C
-    assert(ftell(&*f) == 1);
-    assert(ferror(&*f));
+    assert(ftell(stream) == 1);
+    assert(ferror(stream));
 #endif
     /* End of C library-dependent code */
-    assert(!feof(&*f));
+    assert(!feof(stream));
   }
 
   delete_file(rtype);
@@ -1008,16 +1010,17 @@ static void test23(ReaderType const rtype)
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
     assert(f);
-    assert(fgetc(&*f) == TEST_STR[0]);
-    assert(!fseek(&*f, (long)strlen(TEST_STR) * 2l, SEEK_CUR));
-    assert(ftell(&*f) == (strlen(TEST_STR) * 2l) + 1l);
-    assert(!feof(&*f));
-    assert(!ferror(&*f));
-    assert(fgetc(&*f) == EOF);
+    FILE *const stream = &*f;
+    assert(fgetc(stream) == TEST_STR[0]);
+    assert(!fseek(stream, (long)strlen(TEST_STR) * 2l, SEEK_CUR));
+    assert(ftell(stream) == (strlen(TEST_STR) * 2l) + 1l);
+    assert(!feof(stream));
+    assert(!ferror(stream));
+    assert(fgetc(stream) == EOF);
     /* Result depends on standard C library */
 #ifdef ACORN_C
-    assert(!feof(f));
-    assert(ferror(f));
+    assert(!feof(stream));
+    assert(ferror(stream));
 #endif
     /* End of C library-dependent code */
   }
@@ -1044,15 +1047,16 @@ static void test24(ReaderType const rtype)
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
     assert(f);
-    assert(fgetc(&*f) == TEST_STR[0]);
-    assert(fseek(&*f, -1, SEEK_SET));
+    FILE *const stream = &*f;
+    assert(fgetc(stream) == TEST_STR[0]);
+    assert(fseek(stream, -1, SEEK_SET));
     /* Result depends on standard C library */
 #ifdef ACORN_C
-    assert(ftell(&*f) == 1);
-    assert(ferror(&*f));
+    assert(ftell(stream) == 1);
+    assert(ferror(stream));
 #endif
     /* End of C library-dependent code */
-    assert(!feof(&*f));
+    assert(!feof(stream));
   }
 
   delete_file(rtype);
@@ -1109,16 +1113,17 @@ static void test26(ReaderType const rtype)
   if (rtype == READERTYPE_RAW) {
     rewind_file(rtype);
     assert(f);
-    assert(fgetc(&*f) == TEST_STR[0]);
-    assert(!fseek(&*f, (long)strlen(TEST_STR) * 2l, SEEK_SET));
-    assert(ftell(&*f) == strlen(TEST_STR) * 2l);
-    assert(!feof(&*f));
-    assert(!ferror(&*f));
-    assert(fgetc(&*f) == EOF);
+    FILE *const stream = &*f;
+    assert(fgetc(stream) == TEST_STR[0]);
+    assert(!fseek(stream, (long)strlen(TEST_STR) * 2l, SEEK_SET));
+    assert(ftell(stream) == strlen(TEST_STR) * 2l);
+    assert(!feof(stream));
+    assert(!ferror(stream));
+    assert(fgetc(stream) == EOF);
     /* Result depends on standard C library */
 #ifdef ACORN_C
-    assert(!feof(f));
-    assert(ferror(f));
+    assert(!feof(stream));
+    assert(ferror(stream));
 #endif
     /* End of C library-dependent code */
   }
