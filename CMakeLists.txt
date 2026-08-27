@@ -33,6 +33,7 @@ if(USE_FORTIFY)
     )
 
     FetchContent_MakeAvailable(Fortify)
+    link_libraries(Fortify)
 endif()
 
 set(CMAKE_C_STANDARD 99)
