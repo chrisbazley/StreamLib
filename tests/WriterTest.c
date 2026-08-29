@@ -351,6 +351,14 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
   }
 }
 
+static void make_tmp_name(char name[L_tmpnam])
+{
+  if (tmpnam(name) == NULL) {
+    fputs("Failed to generate temporary filename\n", stderr);
+    abort();
+  }
+}
+
 static int open_file(WriterType const wtype, long int const min_size)
 {
   assert(wnum >= 0);
@@ -359,14 +367,14 @@ static int open_file(WriterType const wtype, long int const min_size)
 
   switch (wtype) {
   case WRITERTYPE_RAW:
-    tmpnam(file_names[wnum]);
+    make_tmp_name(file_names[wnum]);
     assert(files[wnum] == NULL);
     files[wnum] = fopen(file_names[wnum], "wb");
     assert(files[wnum] != NULL);
     break;
 
   case WRITERTYPE_GKEY:
-    tmpnam(file_names[wnum]);
+    make_tmp_name(file_names[wnum]);
     assert(files[wnum] == NULL);
     files[wnum] = fopen(file_names[wnum], "wb");
     assert(files[wnum] != NULL);

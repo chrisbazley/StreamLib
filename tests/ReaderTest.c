@@ -67,12 +67,20 @@ static size_t buffer_size;
 static _Optional FILE *f;
 static char file_name[L_tmpnam];
 
+static void make_tmp_name(void)
+{
+  if (tmpnam(file_name) == NULL) {
+    fputs("Failed to generate temporary filename\n", stderr);
+    abort();
+  }
+}
+
 static void make_file(ReaderType const rtype, const void *const data,
                       size_t size, size_t const nmemb)
 {
   switch (rtype) {
   case READERTYPE_RAW:
-    tmpnam(file_name);
+    make_tmp_name();
     f = fopen(file_name, "wb");
     if (f == NULL)
       perror("Failed to open file");
@@ -92,7 +100,7 @@ static void make_file(ReaderType const rtype, const void *const data,
     break;
 
   case READERTYPE_GKEY:
-    tmpnam(file_name);
+    make_tmp_name();
     f = fopen(file_name, "wb");
     if (f == NULL)
       perror("Failed to open file");
