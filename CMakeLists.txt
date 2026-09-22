@@ -8,8 +8,9 @@ option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
 include(FetchContent)
 
 FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.git GIT_TAG main)
+FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
 
-FetchContent_MakeAvailable(GKey)
+FetchContent_MakeAvailable(GKey CBUtil)
 
 if(USE_OPTIONAL)
     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang")
@@ -80,19 +81,11 @@ file(GLOB PUBLIC_HEADERS "*.h")
 file(GLOB PRIVATE_HEADERS "Internal/*.h")
 
 add_library(Stream STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
-target_link_libraries(Stream PRIVATE GKey)
+target_link_libraries(Stream PRIVATE GKey CBUtil)
 set_target_properties(Stream PROPERTIES
     PUBLIC_HEADER "${PUBLIC_HEADERS}"
     DEBUG_POSTFIX "dbg"
 )
-
-if(USE_OPTIONAL)
-    FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
-
-    FetchContent_MakeAvailable(CBUtil)
-
-    target_link_libraries(Stream PRIVATE CBUtil)
-endif()
 
 target_include_directories(Stream PUBLIC .)
 

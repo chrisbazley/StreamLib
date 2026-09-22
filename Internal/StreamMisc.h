@@ -22,14 +22,17 @@ History:
   CJB: 04-Nov-18: Created this source file.
   CJB: 26-Aug-19: Now requires "PseudoFlex.h" too.
   CJB: 07-Jun-20: Added support for verbose debugging output.
-  CJB: 22-Sep-26: Remove a redundant include of PseudoIO.h because fortify.h
-                  already enables standard I/O interception.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 15-Jun-26: Send the debug log to stderr not stdout.
+  CJB: 22-Sep-26: Remove a redundant include of PseudoIO.h because fortify.h
+                  already enables standard I/O interception.
+  CJB: 22-Sep-26: Use common macro definitions from CBUtilLib.
 */
 
 #ifndef StreamMisc_h
 #define StreamMisc_h
+
+#include "MacroUtils.h"
 
 #ifdef FORTIFY
 #include "fortify.h"
@@ -64,7 +67,5 @@ History:
 #else
 #define _Optional
 #endif
-
-#define NOT_USED(x) ((void)(x))
 
 #endif /* StreamMisc_h */
