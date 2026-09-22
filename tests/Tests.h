@@ -22,6 +22,8 @@
 
 #undef NDEBUG
 
+#include "MacroUtils.h"
+
 #ifdef FORTIFY
 #include "fortify.h"
 #else
@@ -50,9 +52,6 @@
 #else
 #define _Optional
 #endif
-
-#define NOT_USED(x) ((void)(x))
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
 
 extern void Reader_tests(void);
 extern void ReaderNull_tests(void);
