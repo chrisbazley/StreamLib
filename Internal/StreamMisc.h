@@ -22,6 +22,8 @@ History:
   CJB: 04-Nov-18: Created this source file.
   CJB: 26-Aug-19: Now requires "PseudoFlex.h" too.
   CJB: 07-Jun-20: Added support for verbose debugging output.
+  CJB: 22-Sep-26: Remove a redundant include of PseudoIO.h because fortify.h
+                  already enables standard I/O interception.
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 15-Jun-26: Send the debug log to stderr not stdout.
 */
@@ -36,7 +38,6 @@ History:
 #ifdef USE_CBDEBUG
 
 #include "Debug.h"
-#include "PseudoIO.h"
 #include "PseudoFlex.h"
 
 #else /* USE_CBDEBUG */
