@@ -117,7 +117,9 @@ static void make_file(ReaderType const rtype, const void *const data,
       _Optional GKeyComp *const comp = gkeycomp_make(HistoryLog2);
       GKeyStatus stat;
       char buf[BufferSize];
-      GKeyParameters params = {.in_buffer = data, .in_size = size};
+      GKeyParameters params = {
+        .in_buffer = data, .in_size = size, .cb_arg = gkey_stream,
+      };
       do {
         params.out_buffer = buf;
         params.out_size = sizeof(buf);

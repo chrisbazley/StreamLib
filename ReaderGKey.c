@@ -345,24 +345,26 @@ bool reader_gkey_init_from(Reader *const reader,
     return false;
   }
 
-  data->state = (ReaderGKeyState){
-    .backend = in,
-    .owns_backend = false,
-    .read_hdr = false,
-    .params =
-      {
-        .prog_cb = (GKeyProgressFn *)NULL,
-        .cb_arg = reader,
-      },
-  };
-
   _Optional GKeyDecomp *const decomp = gkeydecomp_make(history_log_2);
   if (decomp == NULL) {
     DEBUGF("Failed to create decompressor\n");
     free(data);
     return false;
   }
-  data->state.decomp = &*decomp;
+
+  data->state = (ReaderGKeyState){
+    .backend = in,
+    .owns_backend = false,
+    .read_hdr = false,
+    .decomp = &*decomp,
+    .out_ptr = data->buffer.out,
+    .params =
+      {
+        .in_buffer = data->buffer.in,
+        .prog_cb = (GKeyProgressFn *)NULL,
+        .cb_arg = reader,
+      },
+  };
 
   static ReaderFns const fns = {reader_gkey_fread, reader_gkey_destroy};
   reader_internal_init(reader, &fns, &*data);

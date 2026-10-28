@@ -297,9 +297,11 @@ static void read_file(WriterType const wtype, void *const data, size_t size,
     _Optional GKeyDecomp *const decomp = gkeydecomp_make(HistoryLog2);
     assert(decomp);
     GKeyStatus stat = GKeyStatus_OK;
-    GKeyParameters params = {.out_buffer = data, .out_size = size};
+    char buf[BufferSize];
+    GKeyParameters params = {
+      .in_buffer = buf, .out_buffer = data, .out_size = size, .cb_arg = &*f,
+    };
     do {
-      char buf[BufferSize];
       size_t const n = feof(&*f) ? 0 : fread(buf, 1, sizeof(buf), &*f);
       printf("Read %zu of %zu\n", n, sizeof(buf));
       if (!n) {
