@@ -372,25 +372,27 @@ bool writer_gkey_init_from(Writer *const writer,
     return false;
   }
 
-  data->state = (WriterGKeyState){
-    .backend = out,
-    .owns_backend = false,
-    .wrote_hdr = false,
-    .min_size = min_size,
-    .params =
-      {
-        .prog_cb = (GKeyProgressFn *)NULL,
-        .cb_arg = writer,
-      },
-  };
-
   _Optional GKeyComp *const comp = gkeycomp_make(history_log_2);
   if (comp == NULL) {
     DEBUGF("Failed to create compressor\n");
     free(data);
     return false;
   }
-  data->state.comp = &*comp;
+
+  data->state = (WriterGKeyState){
+    .backend = out,
+    .owns_backend = false,
+    .wrote_hdr = false,
+    .min_size = min_size,
+    .comp = &*comp,
+    .in_ptr = data->buffer.in,
+    .params =
+      {
+        .in_buffer = data->buffer.in,
+        .prog_cb = (GKeyProgressFn *)NULL,
+        .cb_arg = writer,
+      },
+  };
 
   static WriterFns const fns = {writer_gkey_fwrite, writer_gkey_destroy};
   writer_internal_init(writer, &fns, &*data);
