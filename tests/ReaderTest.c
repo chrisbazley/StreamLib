@@ -17,6 +17,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* History:
+  CJB: 28-Oct-26: Explicitly initialise the compression callback context
+                  with the output stream.
+*/
+
 /* ISO library headers */
 #include <limits.h>
 #include <stdio.h>

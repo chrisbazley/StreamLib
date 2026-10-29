@@ -17,6 +17,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* History:
+  CJB: 28-Oct-26: Initialise the decompression input buffer and callback
+                  context explicitly. Keep the input buffer alive for the
+                  lifetime of the decompression parameters.
+*/
+
 /* ISO library headers */
 #include <inttypes.h>
 #include <limits.h>
