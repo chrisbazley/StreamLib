@@ -41,6 +41,9 @@
   CJB: 09-Apr-25: Dogfooding the _Optional qualifier.
   CJB: 29-Apr-26: Stop dereferencing a pointer of type void *.
   CJB: 21-May-26: Refactored write_core to use long int for byte counts.
+  CJB: 28-Oct-26: Create the compressor before initialising the stream
+                  state, and initialise pointers with their real objects and
+                  buffers instead of implicitly setting them to null.
 */
 
 /* ISO library header files */
