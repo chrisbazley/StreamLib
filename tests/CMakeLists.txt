@@ -3,4 +3,7 @@ file(GLOB PRIVATE_HEADERS "*.h")
 
 add_executable(StreamTests ${SOURCES} ${PRIVATE_HEADERS})
 target_link_libraries(StreamTests PRIVATE Stream GKey CBUtil)
+if(USE_FLEX AND USE_FORTIFY)
+    target_link_libraries(StreamTests PRIVATE CBPseudo)
+endif()
 add_test(NAME "StreamTests" COMMAND StreamTests)

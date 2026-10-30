@@ -48,6 +48,19 @@ For example, use the following commands to build and test on Linux:
   ctest
 ```
 
+To include the flex buffer reader, writer and their existing tests on a host,
+enable both flex support and Fortify:
+```
+  cmake -S . -B build-flex -DUSE_FLEX=ON -DUSE_FORTIFY=ON
+  cmake --build build-flex
+  ctest --test-dir build-flex --output-on-failure
+```
+This configuration uses CBPseudoLib's fortified flex implementation. The
+default `USE_FLEX=OFF` configuration remains independent of Acorn libraries.
+On RISC OS, `USE_FLEX=ON` can also use the native flex library with Fortify
+disabled. Host tests exercise the pseudo implementation; they do not verify
+relocation by the native flex allocator.
+
   Three make files are also supplied:
 
 - 'Makefile' is intended for use with GNU Make and the GNU C Compiler on Linux.

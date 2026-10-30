@@ -38,10 +38,13 @@ History:
 #include "fortify.h"
 #endif
 
+#if defined(USE_CBDEBUG) || (defined(ACORN_FLEX) && defined(FORTIFY))
+#include "PseudoFlex.h"
+#endif
+
 #ifdef USE_CBDEBUG
 
 #include "Debug.h"
-#include "PseudoFlex.h"
 
 #else /* USE_CBDEBUG */
 

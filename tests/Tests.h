@@ -22,6 +22,12 @@
 
 #undef NDEBUG
 
+#include <stddef.h>
+
+/* Flex's void ** API requires unqualified void * anchors, including empty
+   anchors. Name their intentional null value explicitly. */
+#define FLEX_NULL ((void *)NULL)
+
 #include "MacroUtils.h"
 
 #ifdef FORTIFY
@@ -34,10 +40,17 @@
 #define Fortify_OutputStatistics()
 #endif
 
+#ifdef ACORN_FLEX
+#include "flex.h"
+#endif
+
+#if defined(USE_CBDEBUG) || (defined(ACORN_FLEX) && defined(FORTIFY))
+#include "PseudoFlex.h"
+#endif
+
 #ifdef USE_CBDEBUG
 
 #include "Debug.h"
-#include "PseudoFlex.h"
 
 #else /* USE_CBDEBUG */
 

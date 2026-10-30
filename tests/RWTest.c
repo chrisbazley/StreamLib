@@ -164,11 +164,11 @@ static void init_flex_reader(Reader *const reader, void *const stream,
 static void test_flex(void)
 {
   Writer writer;
-  void *anchor = NULL;
+  void *anchor = FLEX_NULL;
 
   assert(flex_alloc(&anchor, 0));
   writer_flex_init(&writer, &anchor);
-  test_random_data(&writer, init_flex_reader, &anchor);
+  test_random_data(&writer, init_flex_reader, &anchor, 0);
 
   flex_free(&anchor);
 }
