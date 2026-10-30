@@ -24,7 +24,6 @@
 */
 
 /* ISO library header files */
-#include <limits.h>
 
 /* Local headers */
 #include "Internal/StreamMisc.h"
