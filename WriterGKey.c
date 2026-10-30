@@ -47,7 +47,6 @@
 */
 
 /* ISO library header files */
-#include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdbool.h>

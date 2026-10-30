@@ -34,7 +34,6 @@
 /* ISO library header files */
 #include <limits.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 
 /* Local headers */
