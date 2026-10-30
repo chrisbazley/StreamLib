@@ -3,6 +3,7 @@ project(StreamLib C)
 
 option(USE_OPTIONAL "Enable the _Optional qualifier" OFF)
 option(USE_FORTIFY "Enable Fortify memory-allocation checking" OFF)
+option(USE_FLEX "Build and test Acorn flex buffer streams" OFF)
 option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
 option(WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
@@ -12,6 +13,26 @@ FetchContent_Declare(GKey GIT_REPOSITORY https://github.com/chrisbazley/GKeyLib.
 FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
 
 FetchContent_MakeAvailable(GKey CBUtil)
+
+if(USE_FLEX)
+    string(TOUPPER "${CMAKE_SYSTEM_NAME}" SYSTEM_NAME_UPPER)
+    if(NOT USE_FORTIFY AND NOT SYSTEM_NAME_UPPER STREQUAL "RISCOS")
+        message(FATAL_ERROR
+            "Host USE_FLEX builds require USE_FORTIFY=ON for pseudo-flex")
+    endif()
+
+    FetchContent_Declare(OptionalAcornC
+        GIT_REPOSITORY https://github.com/chrisbazley/OptionalAcornC.git
+        GIT_TAG main)
+    FetchContent_MakeAvailable(OptionalAcornC)
+
+    if(USE_FORTIFY)
+        FetchContent_Declare(CBPseudo
+            GIT_REPOSITORY https://github.com/chrisbazley/CBPseudoLib.git
+            GIT_TAG main)
+        FetchContent_MakeAvailable(CBPseudo)
+    endif()
+endif()
 
 if(USE_OPTIONAL)
     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang")
@@ -77,6 +98,9 @@ if(ENABLE_CLANG_TIDY AND CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
 
     set(CMAKE_C_CLANG_TIDY
         "${CLANG_TIDY_EXE}"
+        # Keep the stream invariants expressed by assert visible to analysis;
+        # this does not change NDEBUG for the compiler building Release code.
+        "--extra-arg=-UNDEBUG"
         "--checks=-*,clang-analyzer-*,-clang-analyzer-security.insecureAPI.*"
         "--warnings-as-errors=clang-analyzer-*"
     )
@@ -94,6 +118,17 @@ file(GLOB PRIVATE_HEADERS "Internal/*.h")
 
 add_library(Stream STATIC ${SOURCES} ${PUBLIC_HEADERS} ${PRIVATE_HEADERS})
 target_link_libraries(Stream PRIVATE GKey CBUtil)
+
+if(USE_FLEX)
+    target_sources(Stream PRIVATE ReaderFlex.c WriterFlex.c)
+    target_compile_definitions(Stream PUBLIC ACORN_FLEX)
+    target_link_libraries(Stream PUBLIC OptionalAcornC)
+    if(USE_FORTIFY)
+        target_link_libraries(Stream PRIVATE CBPseudo)
+    else()
+        target_link_libraries(Stream PRIVATE flex)
+    endif()
+endif()
 set_target_properties(Stream PROPERTIES
     PUBLIC_HEADER "${PUBLIC_HEADERS}"
     DEBUG_POSTFIX "dbg"

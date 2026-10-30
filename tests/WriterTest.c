@@ -74,7 +74,7 @@ typedef enum {
   WRITERTYPE_COUNT
 } WriterType;
 
-static _Optional void *anchors[NumberOfWriters];
+static void *anchors[NumberOfWriters];
 static _Optional void *buffers[NumberOfWriters];
 static _Optional FILE *files[NumberOfWriters];
 static int wnum = 0;
@@ -1529,7 +1529,7 @@ void Writer_tests(void)
   /* Due to a static initialization bug in gcc, zero-initialization
      doesn't happen. Any other static initializer would be wrong. */
   for (size_t i = 0; i < NumberOfWriters; ++i) {
-    anchors[i] = NULL;
+    anchors[i] = FLEX_NULL;
     buffers[i] = NULL;
     files[i] = NULL;
   }
