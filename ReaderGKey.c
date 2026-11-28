@@ -31,6 +31,7 @@
   CJB: 28-Oct-26: Create the decompressor before initialising the stream
                   state, and initialise pointers with their real objects and
                   buffers instead of implicitly setting them to null.
+  CJB: 28-Nov-26: Remove redundant casts of NULL to function pointer types.
 */
 
 /* ISO library header files */
@@ -363,7 +364,7 @@ bool reader_gkey_init_from(Reader *const reader,
     .params =
       {
         .in_buffer = data->buffer.in,
-        .prog_cb = (GKeyProgressFn *)NULL,
+        .prog_cb = NULL,
         .cb_arg = reader,
       },
   };
