@@ -33,6 +33,7 @@
   CJB: 28-Oct-26: Create the compressor before initialising the stream
                   state, and initialise pointers with their real objects and
                   buffers instead of implicitly setting them to null.
+  CJB: 28-Nov-26: Remove redundant casts of NULL to function pointer types.
 */
 
 /* ISO library header files */
@@ -261,7 +262,7 @@ bool writer_gkc_init_with_min(Writer *const writer,
         .in_buffer = data->buffer.in,
         .out_buffer = NULL,
         .out_size = 0,
-        .prog_cb = (GKeyProgressFn *)NULL,
+        .prog_cb = NULL,
         .cb_arg = writer,
       },
     .min_size = min_size,
